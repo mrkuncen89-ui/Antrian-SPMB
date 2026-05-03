@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Display Antrian</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+:root {
+  --bg-deep:  #0a1931;
+  --bg-blue:  #185adb;
+  --panel:    #ffffff;
+  --text:     #ffffff;
+  --text-dark:#0f172a;
+  --blue-main:#003c96;
+  --blue-lite:#00adc3;
+  --lime:     #d4ff00;
+  --white:    #ffffff;
+  --border:   rgba(255,255,255,0.2);
+  --header-h: 100px;
+  --stats-h:  100px;
+  --ticker-h: 40px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100vh; width:100vw; overflow:hidden;}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background: radial-gradient(circle at center, #1b3a7a 0%, #0a1931 100%);
+  color:var(--text);
+  display:flex; flex-direction:column;
+}
+
+/* ── Header ── */
+.header{
+  height: var(--header-h);
+  background: linear-gradient(90deg, #00468c 0%, #006ebc 100%);
+  border-bottom: 2px solid #00adc3;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 100;
+}
+.header-brand{display:flex;align-items:center;gap:20px;}
+.header-logo{
+  width: 70px; height: 70px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-logo img{width:80%;height:80%;object-fit:contain;}
+.header-title{line-height:1.2;}
+.header-title div{font-size: clamp(24px, 2.5vw, 36px); font-weight:900; color:var(--lime); text-transform:uppercase; letter-spacing: 0.5px;}
+.header-title small{display:block; font-size: clamp(12px, 1.2vw, 16px); font-weight:700; color:var(--white); opacity:0.8; margin-top: 2px;}
+
+.header-clock{
+  text-align:center; background: rgba(0,0,0,0.4); padding: 6px 24px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.clock-time{font-size: clamp(36px, 4vw, 56px); font-weight:900; color:var(--white); display:block; line-height:1; font-variant-numeric:tabular-nums; letter-spacing:1px;}
+.clock-date{font-size: clamp(11px, 1vw, 13px); color:rgba(255,255,255,0.7); margin-top:4px; font-weight:600; text-transform:capitalize;}
+
+
+/* ── Main Layout ── */
+.main{
+  flex: 1; display:grid; grid-template-columns: 1fr 1.6fr; gap:16px; 
+  padding:16px; min-height:0;
+}
+
+/* ── Call panel ── */
+.call-box{display:flex; flex-direction:column; gap:16px; min-height:0;}
+
+.panel-current-counter{
+  background: #003c96; padding: 6px; border-radius: 8px; border: 2px solid var(--blue-lite);
+  text-align:center;
+}
+.panel-current-counter div{
+  font-size: 28px; font-weight:900; color:var(--lime); text-transform:uppercase; letter-spacing:2px;
+}
+
+.panel-call-main{
+  flex:1; background: #002d64; border: 3px solid var(--blue-lite); border-radius:12px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative; box-shadow: inset 0 0 50px rgba(0, 173, 195, 0.15);
+  min-height:0;
+}
+.call-label-top{
+  font-size: 20px; font-weight:900; text-transform:uppercase;
+  background: var(--blue-lite); width:100%; text-align:center;
+  padding: 10px; position:absolute; top:0; left:0;
+  border-bottom: 2px solid rgba(255,255,255,0.1); color: #002d64;
+}
+.call-number{
+  font-family:'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(100px, 12vw, 200px); font-weight:900;
+  line-height:0.8; display:flex; align-items:baseline; gap:8px;
+}
+.call-number .prefix{color:var(--white);}
+.call-number .digit{color:var(--lime); text-shadow: 0 0 40px rgba(212, 255, 0, 0.3);}
+.call-number.idle .digit{color:rgba(212, 255, 0, 0.05); text-shadow:none;}
+
+/* ── Video Area ── */
+.video-container{
+  background: #000; border: 3px solid var(--blue-lite); border-radius:12px;
+  overflow:hidden; position:relative; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  width: 100%; height: 100%; min-height: 250px;
+}
+.video-container video, .video-container img{width:100%; height:100%; object-fit:cover; display:none; border-radius: 8px;}
+
+/* ── Slide Dots ── */
+.slide-dots{
+  position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+  display:flex; gap:8px; align-items:center; z-index:10;
+  background:rgba(0,0,0,0.4); padding:5px 12px; border-radius:100px;
+  backdrop-filter:blur(4px);
+}
+.slide-dot{
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(255,255,255,0.35); transition:all .3s;
+  cursor:pointer;
+}
+.slide-dot.active{ background:var(--lime); width:22px; border-radius:4px; }
+
+/* ── Stats Bar (Unified Summary & Counters) ── */
+.stats-bar{
+  height: var(--stats-h);
+  background: #002d64;
+  border-top: 2px solid var(--blue-lite);
+  display: flex; align-items: stretch;
+  overflow: hidden; flex-shrink: 0;
+}
+.stats-summary{
+  background: rgba(0,0,0,0.3);
+  display: flex; align-items: stretch;
+  border-right: 3px solid var(--blue-lite);
+  flex-shrink: 0;
+}
+.summary-item{
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 25px; border-right: 1px solid rgba(255,255,255,0.1); gap: 2px;
+}
+.summary-item:last-child{ border-right: none; }
+.summary-item .label{ font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+.summary-item .value{ font-size: 38px; font-weight: 900; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
+.summary-item.waiting .value{ color: var(--lime); }
+.summary-item.serving .value{ color: var(--blue-lite); }
+.summary-item.served .value{ color: var(--white); }
+
+.stats-counters{
+  flex: 1; display: flex; overflow-x: auto; scroll-behavior: smooth;
+}
+.stats-counters::-webkit-scrollbar { display: none; }
+
+.stat-item{
+  min-width: 140px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border-right: 1px solid rgba(255,255,255,0.1); padding: 5px 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  flex: 1;
+}
+.stat-item:last-child{border-right:none;}
+.stat-item-label{font-size: 12px; font-weight:800; color:rgba(255,255,255,0.6); text-transform:uppercase; margin-bottom:2px;}
+.stat-item-num{
+  font-size: 36px; font-weight:900; color:var(--lime); line-height:1; 
+  text-shadow: 0 0 15px rgba(212, 255, 0, 0.2);
+}
+.stat-item-staff{font-size: 10px; font-weight:700; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;}
+
+/* ── Ticker ── */
+.ticker{
+  background: #000; height: var(--ticker-h); display:flex; align-items:center; overflow:hidden; flex-shrink: 0;
+}
+.ticker-inner{display:inline-flex; gap:100px; white-space:nowrap; animation:ticker 40s linear infinite;}
+.ticker-inner span{font-size: 20px; font-weight:900; color:var(--lime); text-transform:uppercase; letter-spacing:1px;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── Summary Bar ── */
+.summary-bar {
+  height: var(--summary-h);
+  display: flex; gap: 16px; padding: 0 16px; margin-top: 10px;
+  flex-shrink: 0;
+}
+.summary-card {
+  flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+  padding: 0 20px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.summary-card.waiting { border-left: 5px solid var(--lime); }
+.summary-card.serving { border-left: 5px solid var(--blue-lite); }
+.summary-card.served { border-left: 5px solid var(--white); }
+
+.summary-card-label { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+.summary-card-value { font-size: 32px; font-weight: 900; color: var(--white); font-family: 'Bebas Neue', sans-serif; line-height: 1; }
+.summary-card.waiting .summary-card-value { color: var(--lime); }
+.summary-card.serving .summary-card-value { color: var(--blue-lite); }
+
+/* ── Audio Warning ── */
+.audio-check-overlay{
+  position:fixed; inset:0; background:rgba(10,25,49,0.85); z-index:10000;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  color:#fff; text-align:center; padding:20px; backdrop-filter:blur(10px);
+}
+.audio-check-overlay.hidden{display:none;}
+.audio-check-btn{
+  background:var(--lime); color:#002d64; border:none; padding:15px 40px;
+  font-size:20px; font-weight:900; border-radius:50px; cursor:pointer;
+  margin-top:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5); transition:all 0.3s;
+}
+.audio-check-btn:hover{transform:scale(1.05); background:#fff;}
+.audio-status-badge{
+  position:fixed; bottom:160px; right:20px; z-index:500;
+  background:rgba(0,0,0,0.5); color:var(--lime); padding:5px 15px;
+  border-radius:20px; font-size:12px; font-weight:800; border:1px solid var(--lime);
+  display:flex; align-items:center; gap:8px; backdrop-filter:blur(5px);
+  cursor:pointer; transition: opacity 0.3s;
+}
+.audio-status-badge.muted{color:#ff4d4d; border-color:#ff4d4d;}
+
+.header-fs-btn{
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+  color: #fff; width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 20px; transition: all 0.2s;
+  margin-right: 15px;
+}
+.header-fs-btn:hover{ background: rgba(255,255,255,0.2); transform: scale(1.05); }
+
+/* ── Rest of elements ── */
+@keyframes numPop{ 0%{transform:scale(1);} 100%{transform:scale(1.05); filter: brightness(1.2);} }
+@keyframes numflash{
+  0%{transform:scale(.55); opacity:0;}
+  60%{transform:scale(1.1); opacity:1;}
+  100%{transform:scale(1); opacity:1;}
+}
+.call-number.flash{animation:numflash .65s cubic-bezier(.22,1,.36,1) forwards;}
+
+/* video overlay (logic for intro) */
+.video-overlay{position:fixed;inset:0;background:#050a14;z-index:300;display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease, visibility 0.8s;}
+.video-overlay video, .video-overlay img{max-width:100%;max-height:100%;object-fit:contain; display:none;}
+.video-overlay.hidden{display:none;}
+.video-overlay.fade-out{opacity:0; visibility:hidden;}
+
+.start-btn{
+  position:absolute; bottom:15%; left:50%; transform:translateX(-50%);
+  background: var(--lime); color:#002d64; border:none; padding:20px 50px;
+  font-size:24px; font-weight:900; border-radius:50px; cursor:pointer;
+  display:flex; align-items:center; gap:15px; box-shadow:0 15px 40px rgba(0,0,0,0.5);
+  transition: all 0.3s; z-index:10; font-family:inherit;
+}
+.start-btn:hover{transform:translateX(-50%) scale(1.05); background:#fff;}
+.start-btn-dot{width:12px; height:12px; background:#002d64; border-radius:50%; animation:vb-pulse 1s infinite;}
+
+.btn-video-toggle{position:fixed;bottom:10px;right:10px;z-index:1000;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:10px;padding:4px 8px;border-radius:4px;}
+
+/* ── Pre-Break Warning Overlay (5 menit sebelum istirahat) ── */
+.prebreak-overlay{
+  position:absolute; inset:0; z-index:50;
+  background: linear-gradient(160deg, rgba(10,10,10,0.88) 0%, rgba(0,20,60,0.92) 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:clamp(8px,1.5vw,18px); border-radius:10px;
+  opacity:0; visibility:hidden;
+  transition: opacity 0.8s ease, visibility 0.8s;
+  overflow:hidden;
+  backdrop-filter:blur(4px);
+}
+.prebreak-overlay.show{ opacity:1; visibility:visible; }
+
+/* Animasi garis berjalan di pinggir */
+.prebreak-overlay::before{
+  content:'';
+  position:absolute; inset:0;
+  border-radius:10px;
+  border: 3px solid transparent;
+  background: linear-gradient(90deg,transparent,rgba(255,180,0,0.6),transparent) border-box;
+  animation: border-run 2s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+}
+@keyframes border-run{
+  0%{background-position:0% 50%;}
+  100%{background-position:200% 50%;}
+}
+
+.pb-icon{
+  font-size: clamp(32px,5vw,64px);
+  animation: pb-swing 1.8s ease-in-out infinite alternate;
+  line-height:1;
+}
+@keyframes pb-swing{
+  from{ transform:rotate(-12deg); }
+  to{   transform:rotate(12deg); }
+}
+
+.pb-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,165,0,0.15); border:1.5px solid rgba(255,165,0,0.5);
+  border-radius:100px; padding:5px 18px;
+}
+.pb-badge-dot{
+  width:8px; height:8px; border-radius:50%; background:#ffa500;
+  animation: pb-blink 0.8s ease-in-out infinite alternate;
+}
+@keyframes pb-blink{
+  from{ opacity:1; box-shadow:0 0 6px #ffa500; }
+  to{   opacity:0.2; box-shadow:none; }
+}
+.pb-badge-text{
+  font-size:clamp(9px,1.1vw,13px); font-weight:900;
+  color:#ffa500; text-transform:uppercase; letter-spacing:2px;
+}
+
+.pb-title{
+  font-size:clamp(18px,2.8vw,42px);
+  font-weight:900; color:#fff;
+  text-transform:uppercase; letter-spacing:3px;
+  line-height:1; text-align:center;
+}
+
+.pb-countdown-wrap{
+  display:flex; align-items:baseline; gap:6px;
+  background:rgba(0,0,0,0.4); border:2px solid rgba(255,165,0,0.4);
+  border-radius:14px; padding:clamp(6px,1vw,14px) clamp(16px,2.5vw,36px);
+}
+.pb-countdown{
+  font-size:clamp(36px,7vw,100px);
+  font-weight:900; color:#ffa500;
+  font-variant-numeric:tabular-nums; letter-spacing:2px; line-height:1;
+  text-shadow: 0 0 30px rgba(255,165,0,0.5);
+  transition: color 0.3s;
+}
+.pb-countdown.urgent{ color:#ff4d4d; text-shadow:0 0 30px rgba(255,77,77,0.6); }
+.pb-countdown-unit{
+  font-size:clamp(11px,1.3vw,18px); font-weight:800;
+  color:rgba(255,255,255,0.5); text-transform:uppercase;
+}
+
+.pb-subtitle{
+  font-size:clamp(11px,1.4vw,18px); font-weight:600;
+  color:rgba(255,255,255,0.65); text-align:center;
+  max-width:90%; line-height:1.5;
+}
+
+/* ── Mode Istirahat Overlay ── */
+.break-overlay{
+  position:fixed; inset:0; z-index:5000;
+  background: linear-gradient(135deg, #0a1931 0%, #002d64 50%, #0a1931 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:24px; opacity:0; visibility:hidden;
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+.break-overlay.show{ opacity:1; visibility:visible; }
+
+.break-icon{
+  font-size: clamp(60px, 10vw, 120px);
+  animation: break-float 3s ease-in-out infinite;
+}
+@keyframes break-float{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-15px); }
+}
+
+.break-title{
+  font-size: clamp(36px, 6vw, 80px);
+  font-weight:900; color:var(--lime);
+  text-transform:uppercase; letter-spacing:4px;
+  animation: break-glow 2s ease-in-out infinite alternate;
+}
+@keyframes break-glow{
+  from{ text-shadow: 0 0 20px rgba(212,255,0,0.3); }
+  to{   text-shadow: 0 0 60px rgba(212,255,0,0.8); }
+}
+
+.break-subtitle{
+  font-size: clamp(16px, 2vw, 28px);
+  font-weight:600; color:rgba(255,255,255,0.7);
+  text-align:center; max-width:600px; line-height:1.6;
+}
+
+.break-clock{
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight:900; color:var(--white);
+  font-variant-numeric:tabular-nums; letter-spacing:4px;
+  background: rgba(0,0,0,0.3); padding: 12px 40px; border-radius:20px;
+  border: 2px solid rgba(255,255,255,0.15);
+}
+
+.break-divider{
+  width: 120px; height: 4px;
+  background: linear-gradient(90deg, transparent, var(--blue-lite), transparent);
+  border-radius:2px;
+}
+
+/* ── Voice bar ── */
+.voice-bar{
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--lime); color: #002d64;
+  font-size: 14px; font-weight: 900;
+  padding: 8px 24px; border-radius: 100px;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transition: all .4s; pointer-events: none; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 500;
+}
+.voice-bar.show{opacity: 1; bottom: 30px;}
+.vb-dots{display:flex;gap:4px;align-items:center;}
+.vb-dot{width:6px;height:6px;border-radius:50%;background:#002d64; animation:vb-pulse 1.2s ease infinite;}
+.vb-dot:nth-child(2){animation-delay:.2s;}
+.vb-dot:nth-child(3){animation-delay:.4s;}
+@keyframes vb-pulse{0%,100%{transform:scaleY(1);opacity:.5;}50%{transform:scaleY(1.8);opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- ── Audio Activation Guide ── -->
+<div id="audio-check-overlay" class="audio-check-overlay">
+  <h2 style="font-size:32px;margin-bottom:10px">📢 Suara Panggilan</h2>
+  <p style="opacity:0.8;max-width:400px">Browser mematikan suara secara otomatis. Klik tombol di bawah untuk mengaktifkan panggilan suara antrian.</p>
+  <button class="audio-check-btn" onclick="manualUnlock()">🔔 Aktifkan Suara Sekarang</button>
+</div>
+
+<div id="audio-badge" class="audio-status-badge muted">
+  <div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div>
+  <span id="audio-status-text">SUARA MATI (KLIK)</span>
+</div>
+
+<!-- ── Mode Istirahat Overlay ── -->
+<div id="break-overlay" class="break-overlay">
+  <div class="break-icon">☕</div>
+  <div class="break-title">Waktu Istirahat</div>
+  <div class="break-divider"></div>
+  <div class="break-subtitle" id="break-message">Pelayanan akan dilanjutkan kembali setelah istirahat.<br>Terima kasih atas pengertian Anda.</div>
+  <div class="break-clock" id="break-clock">00:00:00</div>
+</div>
+
+<!-- ── Video Intro Screen ── -->
+<div id="video-screen" class="video-overlay hidden">
+  <video id="intro-video" loop playsinline muted></video>
+  <img id="intro-img" alt="Intro Image">
+  <button class="start-btn" onclick="startPelayanan()">
+    <div class="start-btn-dot"></div>
+    MULAI LAYANAN
+  </button>
+</div>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo"><img src="/logo-tutwuri.png" alt="Logo"></div>
+    <div class="header-title">
+      <div id="inst-name">INSTITUSI ANDA</div>
+      <small id="inst-sub">Alamat lengkap institusi akan muncul di sini</small>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 0;">
+    <button class="header-fs-btn" onclick="toggleFullscreen()" title="Layar Penuh">⛶</button>
+
+    <div class="header-clock">
+      <span class="clock-time" id="clock">00:00:00</span>
+      <div class="clock-date" id="clock-date">Hari, 00 Bulan 0000</div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Call Panel -->
+  <div class="call-box">
+    <div class="panel-current-counter">
+      <div id="call-counter-name">LOKET —</div>
+    </div>
+    
+    <div class="panel-call-main" id="call-panel">
+      <div class="call-label-top">NOMOR ANTRIAN</div>
+      <div class="call-number idle" id="call-num">
+        <span class="prefix" id="call-prefix"></span>
+        <span class="digit" id="call-digit">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Area -->
+  <div class="video-container">
+    <video id="main-display-video" loop playsinline muted autoplay></video>
+    <img id="main-display-img" alt="Display Image">
+    <div class="slide-dots" id="slide-dots" style="display:none"></div>
+
+    <!-- ── Pre-Break Warning (5 menit sebelum istirahat) ── -->
+    <div id="prebreak-overlay" class="prebreak-overlay" aria-live="polite">
+      <div class="pb-icon">⏰</div>
+      <div class="pb-badge">
+        <div class="pb-badge-dot"></div>
+        <span class="pb-badge-text">Menuju Jam Istirahat</span>
+      </div>
+      <div class="pb-title">Segera Istirahat</div>
+      <div class="pb-countdown-wrap">
+        <span class="pb-countdown" id="pb-countdown">05:00</span>
+        <span class="pb-countdown-unit">menit</span>
+      </div>
+      <div class="pb-subtitle" id="pb-subtitle">
+        Pelayanan akan istirahat sebentar lagi.<br>Silakan selesaikan keperluan Anda.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Horizontal Stats Bar -->
+<div class="stats-bar">
+  <div class="stats-summary">
+    <div class="summary-item waiting">
+      <div class="label">Menunggu</div>
+      <div class="value" id="stat-waiting">0</div>
+    </div>
+    <div class="summary-item serving">
+      <div class="label">Dilayani</div>
+      <div class="value" id="stat-serving">0</div>
+    </div>
+    <div class="summary-item served">
+      <div class="label">Selesai</div>
+      <div class="value" id="stat-served">0</div>
+    </div>
+  </div>
+  <div class="stats-counters" id="counters-grid">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<div class="ticker">
+  <div class="ticker-inner" id="ticker-inner">
+    <span id="run1">Selamat datang. Silakan ambil nomor antrian Anda.</span>
+    <span id="run2">Selamat datang. Silakan ambil nomor antrian Anda.</span>
+  </div>
+</div>
+
+<div class="voice-bar" id="voice-bar">
+  <div class="vb-dots"><div class="vb-dot"></div><div class="vb-dot"></div><div class="vb-dot"></div></div>
+  Memanggil nomor…
+</div>
+
+<script>
+// ── Security helpers ──────────────────────────────────────────────────────────
+function escapeHTML(str){
+  if(str===null||str===undefined)return'';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleTimeString('id-ID');
+  document.getElementById('clock-date').textContent=n.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+tick();setInterval(tick,1000);
+
+
+// ── Video Intro ─────────────────────────────────────────────
+let _videoReady = false;
+
+async function initVideoIntro() {
+  _slideshowReady = false; // block SSE selama init berlangsung
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    // Simpan settings slideshow agar applyVideoSetting tidak perlu fetch ulang
+    if(s.slide_duration) _slideDuration = s.slide_duration * 1000;
+    if(s.slide_order)    _slideOrder    = s.slide_order;
+    if (s.custom_video) {
+        await applyVideoSetting(s.custom_video, false);
+    } else {
+        await applyVideoSetting('intro.mp4', false); 
+    }
+  }catch{
+    await applyVideoSetting('intro.mp4', false);
+  }
+  _slideshowReady = true; // init selesai, SSE boleh update slideshow
+  if(_slideshowReadyResolve) _slideshowReadyResolve();
+}
+
+let _userHasClicked = false;
+
+function unlockAudio(){
+  try{
+    if(!window._audioCtx) window._audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(window._audioCtx.state==='suspended') window._audioCtx.resume();
+  }catch(e){}
+
+  try{
+    const a = new Audio('/audio/tingtung.mp3');
+    a.volume = 0.001;
+    a.play().then(() => {
+        updateAudioUI(true);
+    }).catch(()=>{
+        // Hanya tampilkan overlay jika user sudah pernah klik (bukan saat load otomatis)
+        if(_userHasClicked) updateAudioUI(false);
+    });
+  }catch(e){
+    if(_userHasClicked) updateAudioUI(false);
+  }
+
+  if(window.speechSynthesis){
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    window.speechSynthesis.speak(u);
+  }
+}
+
+function updateAudioUI(ready) {
+  const badge = document.getElementById('audio-badge');
+  const txt = document.getElementById('audio-status-text');
+  const overlay = document.getElementById('audio-check-overlay');
+  
+  if (ready) {
+    if(badge) badge.classList.remove('muted');
+    if(txt) txt.textContent = 'SUARA AKTIF';
+    if(overlay) overlay.classList.add('hidden');
+    if(badge) setTimeout(() => { badge.style.opacity = '0.3'; }, 5000);
+  } else {
+    if(badge) badge.classList.add('muted');
+    if(txt) txt.textContent = 'SUARA MATI (KLIK)';
+    if(overlay) overlay.classList.remove('hidden');
+    if(badge) badge.style.opacity = '1';
+  }
+}
+
+function manualUnlock() {
+  _userHasClicked = true;
+  const overlay = document.getElementById('audio-check-overlay');
+  if(overlay) overlay.classList.add('hidden');
+  unlockAudio();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const b = document.getElementById('audio-badge');
+  if(b) b.onclick = () => { _userHasClicked = true; manualUnlock(); };
+});
+
+// ── Settings ─────────────────────────────────────────────────
+const TICKER_DEFAULT = 'Selamat datang. Silakan ambil nomor antrian Anda.';
+
+function setRunningText(t){
+  const txt = t && t.trim() ? t.trim() : TICKER_DEFAULT;
+  document.getElementById('run1').textContent = txt;
+  document.getElementById('run2').textContent = txt;
+  // Sesuaikan kecepatan: teks panjang → lebih lambat agar mudah dibaca
+  // ~6px/detik baseline, min 20s, max 60s
+  const charCount = txt.length;
+  const dur = Math.min(Math.max(Math.round(charCount * 0.5), 20), 60);
+  document.getElementById('ticker-inner').style.animationDuration = dur + 's';
+}
+
+async function loadSettings(){
+  try{
+    const s=await fetch('/api/settings').then(r=>r.json());
+    document.getElementById('inst-name').textContent=s.institution_name;
+    document.getElementById('inst-sub').textContent=s.institution_subtitle;
+    setRunningText(s.running_text);
+    window._customAudio=s.custom_audio||null;
+    // Voice settings
+    if(s.voice_volume !== undefined) _voiceVolume = s.voice_volume;
+    if(s.voice_rate   !== undefined) _voiceRate   = s.voice_rate;
+    if(s.voice_pitch  !== undefined) _voicePitch  = s.voice_pitch;
+    // Update Logo
+    const logoImg = document.querySelector('.header-logo img');
+    if (logoImg) {
+      logoImg.src = s.custom_logo ? `/uploads/${s.custom_logo}` : '/logo-tutwuri.png';
+    }
+  }catch{}
+}
+
+// ── Slideshow State ───────────────────────────────────────────────────────────
+let _slideshowImages  = [];
+let _slideshowIndex   = 0;
+let _slideshowTimer   = null;
+let _slideDuration    = 5000;
+let _slideOrder       = []; // urutan slide dari settings
+let _slideshowReady   = false;
+let _slideshowReadyResolve = null;
+const _slideshowReadyPromise = new Promise(res => { _slideshowReadyResolve = res; });
+
+function renderDots(count, activeIdx) {
+  const dotsEl = document.getElementById('slide-dots');
+  if (!dotsEl) return;
+  if (count <= 1) { dotsEl.style.display = 'none'; return; }
+  dotsEl.style.display = 'flex';
+  dotsEl.innerHTML = Array.from({length: count}, (_, i) =>
+    `<div class="slide-dot${i === activeIdx ? ' active' : ''}" onclick="showSlide(${i})"></div>`
+  ).join('');
+}
+
+function stopSlideshow() {
+  if (_slideshowTimer) { clearInterval(_slideshowTimer); _slideshowTimer = null; }
+  const dotsEl = document.getElementById('slide-dots');
+  if (dotsEl) dotsEl.style.display = 'none';
+}
+
+function showSlide(index) {
+  if (!_slideshowImages.length) return;
+  _slideshowIndex = (index + _slideshowImages.length) % _slideshowImages.length;
+  const src = '/video/' + encodeURIComponent(_slideshowImages[_slideshowIndex]);
+  const mainImg = document.getElementById('main-display-img');
+  // Fade out → ganti src → fade in
+  mainImg.style.transition = 'opacity 0.5s';
+  mainImg.style.opacity = '0';
+  setTimeout(() => {
+    mainImg.src = src;
+    mainImg.style.opacity = '1';
+    renderDots(_slideshowImages.length, _slideshowIndex);
+  }, 500);
+}
+
+function startSlideshow(images, startIndex = 0) {
+  stopSlideshow();
+  _slideshowImages = images;
+  _slideshowIndex  = startIndex;
+
+  const mainImg = document.getElementById('main-display-img');
+  const mainVid = document.getElementById('main-display-video');
+  mainVid.style.display = 'none';
+  mainImg.style.display = 'block';
+  mainImg.style.transition = 'opacity 0.5s';
+
+  showSlide(_slideshowIndex);
+  if (images.length > 1) {
+    _slideshowTimer = setInterval(() => showSlide(_slideshowIndex + 1), _slideDuration);
+  }
+}
+
+async function applyVideoSetting(videoFilename, showScreen = true){
+  const screen   = document.getElementById('video-screen');
+  const introVid = document.getElementById('intro-video');
+  const introImg = document.getElementById('intro-img');
+  const mainVid  = document.getElementById('main-display-video');
+  const mainImg  = document.getElementById('main-display-img');
+
+  if(!videoFilename){
+    stopSlideshow();
+    _videoReady = false;
+    introVid.pause();
+    introVid.style.display = 'none';
+    introImg.style.display = 'none';
+    mainVid.style.display  = 'none';
+    mainImg.style.display  = 'none';
+    screen.classList.add('hidden');
+    return;
+  }
+
+  const isImg = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(videoFilename);
+
+  // Reset displays
+  introVid.style.display = 'none';
+  introImg.style.display = 'none';
+  mainVid.style.display  = 'none';
+  mainImg.style.display  = 'none';
+
+  if (isImg) {
+    const introSrc = '/video/' + encodeURIComponent(videoFilename);
+    introImg.src = introSrc;
+    introImg.style.display = 'block';
+
+    try {
+      const listData = await fetch('/api/video/list').then(r => r.json());
+
+      const allImgs = (listData.files || []).filter(f => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f));
+      const order   = listData.slide_order || _slideOrder || [];
+
+      const sorted = [
+        ...order.filter(f => allImgs.includes(f)),
+        ...allImgs.filter(f => !order.includes(f)),
+      ];
+
+      if (sorted.length > 1) {
+        const startIdx = sorted.indexOf(videoFilename);
+        startSlideshow(sorted, startIdx >= 0 ? startIdx : 0);
+      } else {
+        stopSlideshow();
+        mainImg.src = introSrc;
+        mainImg.style.display = 'block';
+      }
+    } catch {
+      stopSlideshow();
+      mainImg.src = '/video/' + encodeURIComponent(videoFilename);
+      mainImg.style.display = 'block';
+    }
+
+  } else {
+    stopSlideshow();
+    // Helper: muat & putar video aman untuk Chrome
+    function loadAndPlay(vid, src) {
+      vid.muted = true;
+      vid.setAttribute('muted', '');
+      vid.style.display = 'block';
+      const isSameSrc = vid.src === new URL(src, window.location.origin).href;
+      if (isSameSrc && !vid.paused) return;
+      vid.oncanplay = null;
+      vid.oncanplay = () => { vid.oncanplay = null; vid.play().catch(() => {}); };
+      if (!isSameSrc) { vid.src = src; vid.load(); }
+      else { vid.play().catch(() => {}); }
+    }
+    const newSrc = '/video/' + encodeURIComponent(videoFilename);
+    loadAndPlay(introVid, newSrc);
+    loadAndPlay(mainVid,  newSrc);
+  }
+
+  if (showScreen) {
+    screen.classList.remove('hidden', 'fade-out');
+  } else {
+    screen.classList.add('hidden');
+  }
+
+  _videoReady = true;
+}
+
+async function loadCounters(){
+  try{
+    const c=await fetch('/api/counters').then(r=>r.json());
+    document.getElementById('counters-grid').innerHTML=c.length
+      ? c.map(ct=>`
+        <div class="stat-item">
+          <div class="stat-item-label">${escapeHTML(ct.name)}</div>
+          <div class="stat-item-num">${escapeHTML(formatQueueNumber(ct.current_queue))}</div>
+          <div class="stat-item-staff">${ct.staff_name || 'Standby'}</div>
+        </div>`).join('')
+      : '<div style="color:var(--white);font-size:14px;padding:20px;opacity:0.5">Belum ada loket aktif</div>';
+  }catch{}
+}
+
+async function loadHistory(){
+  // History is optionally hidden or integrated in this design
+  // We keep the API call if needed for background logic
+  try{ await fetch('/api/recent-calls').then(r=>r.json()); }catch{}
+}
+
+async function loadStats(){
+  try{
+    const d = await fetch('/api/stats').then(r=>r.json());
+    updateStatsUI(d);
+  }catch{}
+}
+
+function updateStatsUI(d) {
+  if(!d) return;
+  document.getElementById('stat-waiting').textContent = d.waiting || 0;
+  document.getElementById('stat-serving').textContent = d.serving || 0;
+  document.getElementById('stat-served').textContent  = d.served || 0;
+}
+
+function formatQueueNumber(str) {
+  if (!str || str === '—') return '—';
+  const match = str.match(/^([A-Za-z]*)(\d+)$/);
+  if (match) {
+    const prefix = match[1];
+    const digit = match[2].padStart(2, '0');
+    return prefix + digit;
+  }
+  return str;
+}
+
+function showCall(data){
+  const numEl=document.getElementById('call-num');
+  const panel=document.getElementById('call-panel');
+  
+  // Format nomor antrian (Prefix & Digit)
+  const match = data.queue_number.match(/^([A-Za-z]*)(\d+)$/);
+  const prefix = match ? match[1] : '';
+  const digit  = match ? match[2].padStart(2, '0') : data.queue_number;
+  
+  numEl.className='call-number flash';
+  document.getElementById('call-prefix').textContent = prefix;
+  document.getElementById('call-digit').textContent = digit;
+  
+  document.getElementById('call-counter-name').textContent = data.counter_name;
+  
+  // Trigger panel glow
+  panel.classList.remove('ringing');
+  void panel.offsetWidth; 
+  panel.classList.add('ringing');
+  speak(data.queue_number,data.counter_name);
+  loadCounters();
+}
+
+/* ── Voice keep-alive: prevent Chrome from pausing speechSynthesis ── */
+(function keepSpeechAlive(){
+  setInterval(()=>{
+    if(window.speechSynthesis && !window.speechSynthesis.speaking){
+      window.speechSynthesis.resume();
+    }
+  }, 10000);
+})();
+
+/* ── Konversi angka ke kata bahasa Indonesia ── */
+function angkaKeKata(n){
+  if(n===0) return 'nol';
+  const s=['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
+  if(n<12) return s[n];
+  if(n<20) return s[n-10]+' belas';
+  if(n<100){ const p=Math.floor(n/10),r=n%10; return s[p]+' puluh'+(r?' '+s[r]:''); }
+  if(n<200) return 'seratus'+(n%100?' '+angkaKeKata(n%100):'');
+  if(n<1000){ const p=Math.floor(n/100),r=n%100; return s[p]+' ratus'+(r?' '+angkaKeKata(r):''); }
+  return String(n);
+}
+
+/* ── Putar file audio, return Promise ── */
+function playAudio(src){
+  return new Promise(res=>{
+    const a=new Audio(src);
+    a.onended=res; a.onerror=res;
+    a.play().catch(res);
+  });
+}
+
+/* ── TTS satu kalimat, return Promise ── */
+let _speaking=false;
+let _idVoice=null;
+
+function loadVoices(){
+  if(!window.speechSynthesis) return;
+  const voices = window.speechSynthesis.getVoices();
+  if(!voices.length) return;
+
+  // Urutan prioritas suara terbaik untuk antrian Bahasa Indonesia
+  const priority = [
+    // Microsoft Neural Indonesia (terbaik, butuh install di Windows)
+    v => v.name.includes('Gadis')  && v.lang.startsWith('id'), // Microsoft Gadis - perempuan natural
+    v => v.name.includes('Ardi')   && v.lang.startsWith('id'), // Microsoft Ardi - laki natural
+    // Google Indonesia (biasanya ada di Chrome Android/Desktop)
+    v => v.name.includes('Google') && v.lang.startsWith('id'),
+    // Microsoft Indonesia lainnya
+    v => v.lang === 'id-ID' && v.localService && v.name.includes('Microsoft'),
+    // Suara Indonesia lokal apapun
+    v => v.lang === 'id-ID' && v.localService,
+    // Suara Indonesia online
+    v => v.lang === 'id-ID',
+    // Fallback Indonesia
+    v => v.lang.startsWith('id'),
+  ];
+
+  for(const test of priority){
+    const found = voices.find(test);
+    if(found){ _idVoice = found; break; }
+  }
+
+  // Log untuk debug (bisa dilihat di console browser)
+  if(_idVoice) console.log('[TTS] Suara dipilih:', _idVoice.name, '|', _idVoice.lang, '| lokal:', _idVoice.localService);
+  else console.warn('[TTS] Tidak ada suara Indonesia, pakai default browser');
+}
+if(window.speechSynthesis){
+  loadVoices();
+  window.speechSynthesis.addEventListener('voiceschanged',loadVoices);
+}
+
+/* Keep-alive: cegah Chrome pause speechSynthesis */
+setInterval(()=>{ if(window.speechSynthesis && !window.speechSynthesis.speaking) window.speechSynthesis.resume(); },5000);
+
+// Voice settings (diupdate dari server)
+let _voiceVolume = 0.9;
+let _voiceRate   = 0.78;
+let _voicePitch  = 1.02;
+
+function sayOnce(txt){
+  return new Promise(res=>{
+    if(!window.speechSynthesis){ res(); return; }
+    window.speechSynthesis.cancel();
+    const vb=document.getElementById('voice-bar');
+    loadVoices();
+    const u=new SpeechSynthesisUtterance(txt);
+    if(_idVoice) u.voice=_idVoice;
+    u.lang='id-ID'; u.rate=_voiceRate; u.pitch=_voicePitch; u.volume=_voiceVolume;
+
+    let started=false;
+    let resolved=false;
+    function done(){ if(!resolved){ resolved=true; clearInterval(watchdog); clearTimeout(failTimer); vb.classList.remove('show'); res(); } }
+
+    // Jika TTS tidak mulai dalam 8 detik, skip (Chrome hang bug)
+    const failTimer=setTimeout(()=>{ if(!started){ window.speechSynthesis.cancel(); done(); } },8000);
+    // Watchdog resume tiap 300ms (Chrome suspend bug)
+    const watchdog=setInterval(()=>{ if(window.speechSynthesis) window.speechSynthesis.resume(); },300);
+
+    u.onstart=()=>{ started=true; vb.classList.add('show'); };
+    u.onend  =()=>done();
+    // onerror juga resolve — termasuk saat di-cancel() dari luar (interrupt error)
+    u.onerror=()=>done();
+    window.speechSynthesis.resume();
+    window.speechSynthesis.speak(u);
+  });
+}
+
+async function speak(num,ctr){
+  if(_speaking) return;
+  _speaking=true;
+  try{
+    // Pisahkan prefix huruf (opsional) dan angka
+    const match = num.match(/^([A-Za-z]*)(\d+)$/);
+    const letter = match ? match[1].toUpperCase() : '';
+    const angka  = match ? parseInt(match[2], 10) : NaN;
+    if(isNaN(angka)){ console.warn('[speak] format nomor tidak valid:', num); return; }
+
+    // 1-9 → "kosong satu" s/d "kosong sembilan", 10+ → angka biasa ("dua belas", dst)
+    const angkaTxt = angka < 10
+      ? 'kosong ' + angkaKeKata(angka)
+      : angkaKeKata(angka);
+
+    // Fungsi bantu: panggil satu sesi lengkap (chime + ucapan per bagian)
+    async function panggilSekali(){
+      await playAudio('/audio/tingtung.mp3');
+      await new Promise(r=>setTimeout(r,700));        // jeda setelah chime
+      await sayOnce('Nomor antrian');
+      await new Promise(r=>setTimeout(r,300));        // jeda setelah "Nomor antrian"
+      if(letter){
+        await sayOnce(letter);                        // ucapkan huruf prefix, misal "A"
+        await new Promise(r=>setTimeout(r,300));      // jeda setelah huruf
+      }
+      await sayOnce(angkaTxt);                        // ucapkan angka, misal "nol satu"
+      await new Promise(r=>setTimeout(r,400));        // jeda sebelum loket
+      await sayOnce(`silakan menuju ${ctr}`);         // ucapkan loket
+    }
+
+    // Panggil dua kali
+    await panggilSekali();
+    await new Promise(r=>setTimeout(r,1500));         // jeda antar panggilan
+    await panggilSekali();
+
+  }catch(e){ console.warn('[speak] error:',e); }
+  finally{
+    // Selalu reset flag — termasuk jika speak() diinterupsi cancel() dari luar
+    _speaking=false;
+  }
+}
+
+
+// ── SSE dengan auto-reconnect ─────────────────────────────────────────────────
+let _es=null, _esRetry=1000;
+function connectSSE(){
+  if(_es){_es.close();}
+  _es=new EventSource('/events');
+  _es.onmessage=e=>{
+    const d=JSON.parse(e.data);
+    if(d.type==='call'){showCall(d); if(d.stats) updateStatsUI(d.stats);}
+    if(d.type==='counter_update'){loadCounters(); if(d.stats) updateStatsUI(d.stats);}
+    if(d.type==='settings_updated'){
+      document.getElementById('inst-name').textContent=d.settings.institution_name;
+      document.getElementById('inst-sub').textContent=d.settings.institution_subtitle;
+      setRunningText(d.settings.running_text);
+      window._customAudio=d.settings.custom_audio||null;
+      if(d.settings.slide_duration) _slideDuration = d.settings.slide_duration * 1000;
+      if(d.settings.slide_order)    _slideOrder    = d.settings.slide_order;
+      // Update voice settings realtime
+      if(d.settings.voice_volume !== undefined) _voiceVolume = d.settings.voice_volume;
+      if(d.settings.voice_rate   !== undefined) _voiceRate   = d.settings.voice_rate;
+      if(d.settings.voice_pitch  !== undefined) _voicePitch  = d.settings.voice_pitch;
+      if(_slideshowReady){
+        applyVideoSetting(d.settings.custom_video||null, false);
+      }
+      const logoImg = document.querySelector('.header-logo img');
+      if (logoImg) {
+        logoImg.src = d.settings.custom_logo ? `/uploads/${d.settings.custom_logo}` : '/logo-tutwuri.png';
+      }
+    }
+    if(d.type==='voice_test'){
+      // Update voice settings dari test
+      if(d.volume !== undefined) _voiceVolume = d.volume;
+      if(d.rate   !== undefined) _voiceRate   = d.rate;
+      if(d.pitch  !== undefined) _voicePitch  = d.pitch;
+      // Panggil contoh antrian
+      speak('A01', 'Loket 1');
+    }
+    if(d.type==='break_mode'){
+      if(d.active){
+        _breakEndedManually = false; // istirahat baru dimulai, reset flag
+        hidePreBreak();
+        let msg = d.message || '';
+        if(!msg && d.end) msg = `Pelayanan akan dilanjutkan kembali pukul <strong>${d.end} WIB</strong>.<br>Terima kasih atas pengertian Anda.`;
+        showBreak(msg);
+      } else hideBreak();
+    }
+    if(d.type==='reset'){
+      // BUG FIX: call-prefix dan call-digit tidak ikut direset sebelumnya,
+      // menyebabkan sisa teks panggilan terakhir masih terlihat di layar.
+      document.getElementById('call-num').className='call-number idle';
+      document.getElementById('call-num').textContent='—';
+      document.getElementById('call-prefix').textContent='';
+      document.getElementById('call-digit').textContent='—';
+      document.getElementById('call-counter-name').textContent='LOKET —';
+      document.getElementById('call-counter').className='call-counter-badge hidden';
+      document.getElementById('idle-msg').style.display='';
+      // Batalkan TTS yang sedang berjalan agar tidak bersuara setelah reset
+      // PENTING: reset flag _speaking agar panggilan suara berikutnya tidak terblokir
+      if(window.speechSynthesis) window.speechSynthesis.cancel();
+      _speaking = false;
+      loadCounters();loadStats();loadHistory();
+      if(d.stats) updateStatsUI(d.stats);
+    }
+    if(d.type==='queue_updated'){ if(d.stats) updateStatsUI(d.stats); }
+    _esRetry=1000; // reset backoff saat pesan masuk
+  };
+  _es.onerror=()=>{
+    _es.close();
+    // Exponential backoff: 1s → 2s → 4s → max 30s
+    setTimeout(connectSSE, _esRetry);
+    _esRetry=Math.min(_esRetry*2, 30000);
+  };
+}
+connectSSE();
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+
+function startPelayanan() {
+  const screen = document.getElementById('video-screen');
+  screen.classList.add('fade-out');
+  setTimeout(() => {
+    screen.classList.add('hidden');
+  }, 800);
+  unlockAudio();
+}
+
+// ── Mode Istirahat ────────────────────────────────────────────────────────────
+function showBreak(msg){
+  const overlay = document.getElementById('break-overlay');
+  if(msg) document.getElementById('break-message').innerHTML = msg;
+  overlay.classList.add('show');
+  // Update jam istirahat tiap detik
+  if(!window._breakClockInterval){
+    window._breakClockInterval = setInterval(()=>{
+      const n = new Date();
+      const el = document.getElementById('break-clock');
+      if(el) el.textContent = n.toLocaleTimeString('id-ID');
+    }, 1000);
+  }
+  // Hentikan panggilan suara yang sedang berjalan
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// Flag: petugas sudah manual akhiri istirahat — cegah polling/load ulang menampilkan overlay
+// Di-reset hanya saat SSE menerima break_mode:true (istirahat baru dimulai lagi)
+let _breakEndedManually = false;
+
+function hideBreak(){
+  _breakEndedManually = true;
+  const overlay = document.getElementById('break-overlay');
+  overlay.classList.remove('show');
+  if(window._breakClockInterval){
+    clearInterval(window._breakClockInterval);
+    window._breakClockInterval = null;
+  }
+  const msgEl = document.getElementById('break-message');
+  if(msgEl) msgEl.innerHTML = 'Pelayanan akan dilanjutkan kembali setelah istirahat.<br>Terima kasih atas pengertian Anda.';
+}
+
+// Cek status break saat pertama load
+(async function checkBreakOnLoad(){
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    // Jangan tampilkan jika petugas sudah akhiri manual di sesi ini
+    if(s.break_mode && !_breakEndedManually){
+      let msg = s.break_message || '';
+      if(!msg && Array.isArray(s.break_schedule)){
+        const now = new Date();
+        const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const aktif = s.break_schedule.find(sc => sc.enabled && hhmm >= sc.start && hhmm < sc.end);
+        if(aktif) msg = `Pelayanan akan dilanjutkan kembali pukul <strong>${aktif.end} WIB</strong>.<br>Terima kasih atas pengertian Anda.`;
+      }
+      showBreak(msg);
+    }
+  }catch{}
+})();
+
+// ── Pre-Break Warning (5 menit sebelum jadwal istirahat) ─────────────────────
+let _preBreakTimer   = null;   // interval 1 detik untuk countdown
+let _preBreakCheck   = null;   // interval 30 detik cek jadwal
+let _preBreakActive  = false;
+
+function showPreBreak(secondsLeft, endTime){
+  _preBreakActive = true;
+  const overlay   = document.getElementById('prebreak-overlay');
+  const countdown = document.getElementById('pb-countdown');
+  const subtitle  = document.getElementById('pb-subtitle');
+  if(!overlay) return;
+
+  overlay.classList.add('show');
+
+  const endLabel = endTime
+    ? `Pelayanan istirahat pukul <strong style="color:#ffa500">${endTime} WIB</strong>.<br>Silakan selesaikan keperluan Anda.`
+    : 'Pelayanan akan istirahat sebentar lagi.<br>Silakan selesaikan keperluan Anda.';
+  if(subtitle) subtitle.innerHTML = endLabel;
+
+  // Update countdown tiap detik
+  if(_preBreakTimer) clearInterval(_preBreakTimer);
+  let secs = secondsLeft;
+
+  function updateCountdown(){
+    if(secs <= 0){ hidePreBreak(); return; }
+    const m = String(Math.floor(secs / 60)).padStart(2,'0');
+    const s = String(secs % 60).padStart(2,'0');
+    if(countdown){
+      countdown.textContent = `${m}:${s}`;
+      // Merah saat ≤ 1 menit
+      if(secs <= 60) countdown.classList.add('urgent');
+      else           countdown.classList.remove('urgent');
+    }
+    secs--;
+  }
+
+  updateCountdown();
+  _preBreakTimer = setInterval(updateCountdown, 1000);
+}
+
+function hidePreBreak(){
+  _preBreakActive = false;
+  if(_preBreakTimer){ clearInterval(_preBreakTimer); _preBreakTimer = null; }
+  const overlay = document.getElementById('prebreak-overlay');
+  if(overlay) overlay.classList.remove('show');
+}
+
+async function checkPreBreakSchedule(){
+  // Tidak tampilkan peringatan jika break overlay sedang aktif
+  if(document.getElementById('break-overlay')?.classList.contains('show')) return;
+  // Tidak tampilkan jika petugas sudah akhiri manual di sesi ini
+  if(_breakEndedManually) return;
+
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    const schedules = s.break_schedule;
+    if(!Array.isArray(schedules) || !schedules.length){ hidePreBreak(); return; }
+
+    const now   = new Date();
+    const nowMs = now.getHours() * 3600000 + now.getMinutes() * 60000 + now.getSeconds() * 1000;
+
+    const WARNING_MS = 5 * 60 * 1000; // 5 menit
+
+    let found = false;
+    for(const sc of schedules){
+      if(!sc.enabled || !sc.start) continue;
+
+      const [sh, sm] = sc.start.split(':').map(Number);
+      const startMs  = sh * 3600000 + sm * 60000;
+      const diff     = startMs - nowMs;
+
+      // Tampilkan HANYA jika sisa waktu 0 < diff ≤ 5 menit (belum mulai, tapi hampir)
+      if(diff > 0 && diff <= WARNING_MS){
+        const secsLeft = Math.floor(diff / 1000);
+        if(!_preBreakActive) showPreBreak(secsLeft, sc.end || '');
+        found = true;
+        break;
+      }
+    }
+
+    if(!found && _preBreakActive) hidePreBreak();
+  }catch{}
+}
+
+// Jalankan pengecekan tiap 30 detik
+function startPreBreakWatcher(){
+  checkPreBreakSchedule();
+  _preBreakCheck = setInterval(checkPreBreakSchedule, 30000);
+}
+
+initVideoIntro();loadSettings();loadCounters();loadHistory();loadStats();startPreBreakWatcher();
+setInterval(()=>{loadCounters();loadStats();},30000);
+
+// ── Polling fallback break status (setiap 10 detik) ──────────────────────────
+// Mengatasi SSE yang tidak sampai / server belum update ke client
+setInterval(async function pollBreakStatus(){
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    const overlay = document.getElementById('break-overlay');
+    const isShowing = overlay?.classList.contains('show');
+
+    if(!s.break_mode && isShowing){
+      // Server sudah break_mode:false tapi display masih tampil → paksa hide
+      hideBreak();
+    } else if(!s.break_mode && !isShowing){
+      // Server break_mode:false, display tidak tampil → aman, reset flag manual
+      // agar istirahat berikutnya bisa tampil normal
+      _breakEndedManually = false;
+    } else if(s.break_mode && !isShowing && !_breakEndedManually){
+      // Server break_mode:true tapi display belum tampil → tampilkan
+      let msg = s.break_message || '';
+      if(!msg && Array.isArray(s.break_schedule)){
+        const now  = new Date();
+        const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const aktif = s.break_schedule.find(sc => sc.enabled && hhmm >= sc.start && hhmm < sc.end);
+        if(aktif) msg = `Pelayanan akan dilanjutkan kembali pukul <strong>${aktif.end} WIB</strong>.<br>Terima kasih atas pengertian Anda.`;
+      }
+      showBreak(msg);
+    }
+  }catch{}
+}, 10000);
+
+// Check status audio berkala - hanya update badge, bukan overlay
+setInterval(() => {
+  if (window._audioCtx && window._audioCtx.state === 'suspended') {
+    const badge = document.getElementById('audio-badge');
+    const txt = document.getElementById('audio-status-text');
+    if(badge) badge.classList.add('muted');
+    if(txt) txt.textContent = 'SUARA MATI (KLIK)';
+    if(badge) badge.style.opacity = '1';
+  }
+}, 2000);
+
+// Saat user klik pertama, tandai dan coba unlock audio
+document.addEventListener('click', () => {
+  _userHasClicked = true;
+  unlockAudio();
+}, { once: true });
+</script>
+</body>
+</html>

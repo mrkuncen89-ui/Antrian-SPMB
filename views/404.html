@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 – Halaman Tidak Ditemukan</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#003580;--blue2:#0050b3;--blue-lt:#e6f0ff;--bg:#f0f4f8;--text:#1a2332;--text2:#4a5568;--text3:#718096;--border:#d1dce8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;}
+.header{background:var(--blue);height:52px;display:flex;align-items:center;padding:0 24px;gap:10px;flex-shrink:0;}
+/* BUG FIX: Tambahkan width & height eksplisit agar tidak ada layout shift saat logo load.
+   REKOMENDASI: Gunakan width/height yang konsisten dengan halaman lain (32px). */
+.header-logo{font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.header-title{font-size:15px;font-weight:700;color:#fff;}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:clamp(32px,5vw,52px);max-width:440px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,53,128,.08);border-top:4px solid var(--blue2);}
+.num{font-size:clamp(72px,16vw,108px);font-weight:800;color:var(--blue);line-height:1;letter-spacing:-3px;}
+.divider{width:48px;height:3px;background:var(--blue2);border-radius:2px;margin:16px auto;}
+h1{font-size:clamp(16px,3vw,20px);font-weight:700;color:var(--text);margin-bottom:8px;}
+p{font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:28px;}
+.links{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.link-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;}
+.link-btn.primary{background:var(--blue);color:#fff;}
+.link-btn.primary:hover{background:var(--blue2);}
+.link-btn.ghost{background:var(--blue-lt);color:var(--blue2);border:1.5px solid #b3d1ff;}
+.link-btn.ghost:hover{background:#b3d1ff;}
+.footer{background:#fff;border-top:1px solid var(--border);padding:12px 24px;text-align:center;font-size:11px;color:var(--text3);}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo"><img src="/logo-tutwuri.png" alt="Tut Wuri Handayani" style="width:100%;height:100%;object-fit:contain;"></div>
+  <div class="header-title" id="err-header-title">Sistem Antrian Digital</div>
+</div>
+<div class="main">
+  <div class="card">
+    <div class="num">404</div>
+    <div class="divider"></div>
+    <h1>Halaman Tidak Ditemukan</h1>
+    <p>Halaman yang Anda cari tidak tersedia atau telah dipindahkan ke alamat lain.</p>
+    <div class="links">
+      <a href="/" class="link-btn primary">🎫 Kiosk Antrian</a>
+      <a href="/display" class="link-btn ghost">📺 Display</a>
+      <a href="/login" class="link-btn ghost">🔐 Login</a>
+    </div>
+  </div>
+</div>
+<div class="footer">
+  <span id="err-footer-title">Sistem Antrian Digital</span> &copy; 2026 &nbsp;·&nbsp;
+  Dikembangkan oleh <strong style="color:var(--text2)">Cahyana Wijaya</strong>
+  <a href="https://www.tiktok.com/@mrkuncen?_r=1&_t=ZS-94UeCb3f7qP" target="_blank" rel="noopener"
+     style="display:inline-flex;align-items:center;gap:4px;background:#010101;color:#fff;font-size:10px;font-weight:700;text-decoration:none;padding:2px 8px;border-radius:4px;margin-left:5px">
+    ▶ @mrkuncen
+  </a>
+</div>
+<script>
+(async function loadSettings(){
+  try{
+    const s=await fetch('/api/settings').then(r=>r.json());
+    const name=s.institution_name||'';
+    const hdr=document.getElementById('err-header-title');
+    if(hdr) hdr.textContent=name||'Sistem Antrian Digital';
+    const ftr=document.getElementById('err-footer-title');
+    if(ftr) ftr.textContent=name||'Sistem Antrian Digital';
+    document.title='404 – '+(name||'Halaman Tidak Ditemukan');
+  }catch{}
+})();
+</script>
+</body>
+</html>

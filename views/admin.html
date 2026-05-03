@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel – Sistem Antrian SPMB</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/js/xlsx.full.min.js"></script>
+<script src="/js/jspdf.umd.min.js"></script>
+<script src="/js/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --blue:#003580;--blue2:#0050b3;--blue3:#1a6dd4;
+  --blue-lt:#e6f0ff;--blue-md:#b3d1ff;
+  --white:#fff;--bg:#f0f4f8;--bg2:#e8eef5;
+  --text:#1a2332;--text2:#4a5568;--text3:#718096;
+  --border:#d1dce8;
+  --green:#1a7a3c;--green-lt:#e6f4ec;--green-md:#a7d7b8;
+  --red:#c0392b;--red-lt:#fdecea;--red-md:#f4a9a2;
+  --yellow:#b45309;--yellow-lt:#fef3c7;
+  --purple:#6d28d9;--purple-lt:#ede9fe;
+  --shadow:0 2px 8px rgba(0,53,128,.07);
+  --shadow2:0 4px 20px rgba(0,53,128,.1);
+}
+.dark{
+  --white:#1e2a3a;--bg:#141e2e;--bg2:#1a2540;
+  --text:#e8eef5;--text2:#94a3b8;--text3:#64748b;
+  --border:#2a3f5a;
+  --green-lt:rgba(26,122,60,.15);--red-lt:rgba(192,57,43,.15);
+  --yellow-lt:rgba(180,83,9,.15);--purple-lt:rgba(109,40,217,.15);
+  --shadow:0 2px 8px rgba(0,0,0,.2);--shadow2:0 4px 20px rgba(0,0,0,.3);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);display:flex;flex-direction:column;transition:background .3s,color .3s;}
+
+/* ── Header ── */
+.header{
+  background:var(--blue);height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,24px);flex-shrink:0;z-index:30;position:relative;
+}
+.hd-left{display:flex;align-items:center;gap:10px;}
+.icon-btn{width:30px;height:30px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.icon-btn:hover{background:rgba(255,255,255,.2);}
+.hd-logo{font-size:18px;}
+.hd-title{font-size:clamp(13px,1.6vw,16px);font-weight:700;color:#fff;}
+.hd-badge{font-size:10px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:4px;padding:2px 7px;letter-spacing:.5px;margin-left:6px;}
+.hd-right{display:flex;align-items:center;gap:8px;}
+.hd-page{font-size:12px;color:rgba(255,255,255,.5);}
+.hd-btn{padding:6px 12px;border-radius:6px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.hd-btn-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);}
+.hd-btn-ghost:hover{background:rgba(255,255,255,.18);}
+.hd-btn-red{background:rgba(192,57,43,.2);color:#fca5a5;border:1px solid rgba(192,57,43,.3);}
+.hd-btn-red:hover{background:rgba(192,57,43,.3);}
+
+/* ── Layout ── */
+.layout{flex:1;display:grid;grid-template-columns:220px 1fr;overflow:hidden;}
+
+/* ── Sidebar ── */
+.sidebar{background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sb-header{padding:16px 14px 12px;border-bottom:1px solid var(--border);}
+.sb-logo{width:40px;height:40px;background:var(--blue-lt);border:1.5px solid var(--blue-md);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;}
+.sb-name{font-size:14px;font-weight:700;color:var(--text);}
+.sb-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.sb-nav{flex:1;padding:10px 10px;}
+.nav-group{margin-bottom:4px;}
+.nav-group-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 8px 4px;}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:8px;margin-bottom:2px;
+  color:var(--text2);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .18s;
+}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--blue-lt);color:var(--blue2);font-weight:700;}
+.nav-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.sb-footer{padding:10px 10px 14px;border-top:1px solid var(--border);}
+.sb-util{width:100%;padding:8px 10px;border-radius:7px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:8px;margin-bottom:4px;transition:all .18s;}
+.sb-dark{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.sb-dark:hover{border-color:var(--blue2);color:var(--blue2);}
+.sb-logout{background:var(--red-lt);color:var(--red);border:1px solid var(--red-md);}
+.sb-logout:hover{background:#fbd5d1;}
+
+/* ── Content ── */
+.content{overflow-y:auto;padding:clamp(14px,2vw,24px);}
+.tab-content{display:none;}.tab-content.show{display:block;}
+
+/* ── Toast ── */
+.toast{position:fixed;top:64px;right:16px;z-index:200;background:var(--blue);color:#fff;border-radius:8px;padding:11px 18px;font-size:13px;font-weight:600;transform:translateX(120%);transition:transform .3s;box-shadow:var(--shadow2);max-width:280px;}
+.toast.show{transform:translateX(0);}
+.toast.err{background:var(--red);}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:18px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid transparent;}
+.sc-blue{border-top-color:var(--blue2);}
+.sc-yellow{border-top-color:var(--yellow);}
+.sc-purple{border-top-color:var(--purple);}
+.sc-green{border-top-color:var(--green);}
+.sc-red{border-top-color:var(--red);}
+.sc-val{font-size:32px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;}
+.sc-lbl{font-size:11px;color:var(--text3);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── Panel ── */
+.panel{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow);}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
+.panel-title{font-size:14px;font-weight:700;color:var(--text);}
+.panel-body{padding:16px;}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding:16px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);}
+.fg input,.fg select,.fg textarea{
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:7px;padding:9px 11px;
+  color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;transition:all .2s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue2);background:var(--white);box-shadow:0 0 0 3px rgba(0,80,179,.08);}
+.fg textarea{resize:vertical;min-height:80px;}
+.form-actions{padding:0 16px 16px;display:flex;gap:8px;}
+
+/* ── Buttons ── */
+.btn{padding:8px 14px;border-radius:7px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .18s;display:inline-flex;align-items:center;gap:5px;}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue2);}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--blue2);color:var(--blue2);}
+.btn-success{background:var(--green-lt);color:var(--green);border:1px solid var(--green-md);}
+.btn-success:hover{background:#d1f0dd;}
+.btn-danger{background:var(--red-lt);color:var(--red);border:1px solid var(--red-md);}
+.btn-danger:hover{background:#fbd5d1;}
+.btn-warning{background:var(--yellow-lt);color:var(--yellow);border:1px solid #fde68a;}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;padding:0 16px 16px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px 10px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:2px solid var(--border);}
+td{padding:10px;border-bottom:1px solid var(--border);color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg);}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;}
+.bg-green{background:var(--green-lt);color:var(--green);}
+.bg-red{background:var(--red-lt);color:var(--red);}
+.bg-blue{background:var(--blue-lt);color:var(--blue2);}
+.bg-yellow{background:var(--yellow-lt);color:var(--yellow);}
+.bg-purple{background:var(--purple-lt);color:var(--purple);}
+
+/* ── Svc stats ── */
+.svc-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:16px;}
+.svc-stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.ss-pre{font-size:24px;font-weight:800;color:var(--blue);margin-bottom:4px;}
+.ss-name{font-size:12px;color:var(--text2);font-weight:600;margin-bottom:8px;}
+.ss-row{display:flex;gap:14px;}
+.ss-item span{font-size:20px;font-weight:800;color:var(--text);display:block;font-variant-numeric:tabular-nums;}
+.ss-item small{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── Chart ── */
+.chart-wrap{padding:14px 16px;overflow-x:auto;}
+
+/* ── Audio ── */
+.audio-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;transition:border-color .2s;}
+.audio-item.is-active{border-color:var(--green);background:var(--green-lt);}
+.ai-name{flex:1;font-size:13px;font-weight:600;color:var(--text);}
+.is-active .ai-name{color:var(--green);}
+.ai-badge{font-size:10px;font-weight:700;background:var(--green-lt);border:1px solid var(--green-md);color:var(--green);border-radius:100px;padding:2px 8px;}
+.ai-actions{display:flex;align-items:center;gap:6px;}
+.drop-zone{border:2px dashed var(--border);border-radius:8px;padding:28px 20px;text-align:center;background:var(--bg);transition:all .2s;cursor:pointer;margin-bottom:14px;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--blue2);background:var(--blue-lt);}
+.dz-icon{font-size:32px;margin-bottom:8px;}
+.dz-text{font-size:13px;color:var(--text2);margin-bottom:12px;}
+
+/* ── Backup ── */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px;}
+.info-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow);border-top:3px solid var(--blue2);}
+.info-card h4{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.backup-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:7px;border:1px solid var(--border);margin-bottom:6px;}
+.br-name{font-size:11px;font-family:monospace;color:var(--text);flex:1;}
+.br-size{font-size:11px;color:var(--text3);}
+
+/* ── Log ── */
+.log-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:6px;background:var(--bg);margin-bottom:3px;font-size:12px;}
+.lr-time{color:var(--text3);font-family:monospace;font-size:11px;white-space:nowrap;}
+.lr-user{font-weight:700;color:var(--blue2);}
+.lr-action{font-weight:700;font-size:10px;padding:1px 7px;border-radius:4px;}
+.lr-detail{color:var(--text2);}
+
+/* ── Reset ── */
+.reset-warn{background:#fff5f5;border:1px solid var(--red-md);border-left:4px solid var(--red);border-radius:8px;padding:16px;margin-bottom:16px;}
+.reset-warn h3{font-size:15px;font-weight:700;color:var(--red);margin-bottom:6px;}
+.reset-warn p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;}
+
+/* ── Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:12px;padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.15);border-top:3px solid var(--blue2);}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+
+/* ── Tombol Istirahat ── */
+.btn-break-off{background:#fff3cd;color:#856404;border:1.5px solid #ffc107;}
+.btn-break-off:hover{background:#ffe69c;}
+.btn-break-on{background:#d4edda;color:#155724;border:1.5px solid #28a745;animation:break-pulse .8s ease-in-out infinite alternate;}
+.btn-break-on:hover{background:#b8dfc4;}
+@keyframes break-pulse{from{box-shadow:0 0 0 0 rgba(40,167,69,.4);}to{box-shadow:0 0 0 6px rgba(40,167,69,0);}}
+
+.break-card{
+  background:var(--white);border:1px solid var(--border);border-radius:10px;
+  padding:16px 20px;margin-bottom:16px;box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  border-left:4px solid var(--yellow);
+}
+.break-card.active{border-left-color:var(--green);}
+.break-card-info{display:flex;flex-direction:column;gap:4px;}
+.break-card-title{font-size:14px;font-weight:700;color:var(--text);}
+.break-card-sub{font-size:12px;color:var(--text3);}
+.break-status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--yellow);margin-right:6px;}
+.break-card.active .break-status-dot{background:var(--green);}
+
+.schedule-row{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 12px;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:8px;
+}
+.schedule-row.enabled{border-color:var(--blue-md);background:var(--blue-lt);}
+.schedule-time{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text2);}
+.schedule-time input[type=time]{
+  background:var(--white);border:1.5px solid var(--border);border-radius:6px;
+  padding:5px 8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;
+}
+.schedule-time input[type=time]:focus{border-color:var(--blue2);}
+
+/* Mobile */
+/* ── License Overlay ── */
+.license-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#001a4d 0%,#003580 60%,#001a4d 100%);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:1;transition:opacity .5s;
+}
+.license-overlay.fade-out{opacity:0;pointer-events:none;}
+.license-overlay.hidden{display:none;}
+
+.license-box{
+  background:#fff;border-radius:16px;max-width:620px;width:100%;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;
+  display:flex;flex-direction:column;max-height:90vh;
+}
+.license-header{
+  background:linear-gradient(90deg,#003580 0%,#0050b3 100%);
+  padding:24px 28px 20px;flex-shrink:0;
+}
+.license-dev-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:100px;padding:4px 14px;margin-bottom:14px;
+}
+.license-dev-badge span{font-size:11px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:1px;text-transform:uppercase;}
+.license-app-name{font-size:clamp(18px,3vw,26px);font-weight:900;color:#fff;line-height:1.2;margin-bottom:4px;}
+.license-version{font-size:12px;color:rgba(255,255,255,.6);font-weight:600;}
+.license-author-row{
+  display:flex;align-items:center;gap:12px;margin-top:16px;
+  padding-top:16px;border-top:1px solid rgba(255,255,255,.15);
+}
+.license-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,#d4ff00,#00adc3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:#003580;flex-shrink:0;
+}
+.license-author-info{}
+.license-author-name{font-size:15px;font-weight:800;color:#fff;}
+.license-author-contact{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;}
+
+.license-body{
+  padding:20px 28px;overflow-y:auto;flex:1;
+}
+.license-section-title{
+  font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:#003580;margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.license-section-title::after{content:'';flex:1;height:1px;background:#d1dce8;}
+.license-text{
+  background:#f0f4f8;border:1px solid #d1dce8;border-radius:8px;
+  padding:14px 16px;font-size:12px;line-height:1.8;color:#334155;
+  max-height:220px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;
+  margin-bottom:16px;
+}
+.license-text::-webkit-scrollbar{width:4px;}
+.license-text::-webkit-scrollbar-thumb{background:#b3d1ff;border-radius:4px;}
+
+.license-agree-row{
+  display:flex;align-items:flex-start;gap:10px;
+  background:#e6f0ff;border:1.5px solid #b3d1ff;border-radius:8px;
+  padding:12px 14px;margin-bottom:16px;cursor:pointer;
+  transition:background .2s;
+}
+.license-agree-row:hover{background:#d0e5ff;}
+.license-agree-row input[type=checkbox]{width:18px;height:18px;margin-top:1px;cursor:pointer;flex-shrink:0;accent-color:#003580;}
+.license-agree-row label{font-size:13px;font-weight:600;color:#003580;cursor:pointer;line-height:1.5;}
+
+.license-footer{
+  padding:0 28px 22px;flex-shrink:0;
+}
+.license-btn{
+  width:100%;padding:14px;border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;border:none;transition:all .2s;
+  background:#d1dce8;color:#94a3b8;
+}
+.license-btn.ready{
+  background:linear-gradient(90deg,#003580 0%,#0050b3 100%);
+  color:#fff;box-shadow:0 6px 20px rgba(0,53,128,.3);
+}
+.license-btn.ready:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(0,53,128,.4);}
+.license-copyright{
+  text-align:center;font-size:11px;color:#94a3b8;margin-top:10px;
+}
+
+.sb-overlay{display:none;}
+@media(max-width:800px){
+  /* Layout */
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:260px;z-index:50;transform:translateX(-100%);transition:transform .3s;box-shadow:4px 0 24px rgba(0,0,0,.18);}
+  .sidebar.open{transform:translateX(0);}
+  .sb-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:49;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .sb-overlay.show{opacity:1;pointer-events:all;}
+
+  /* Header */
+  .header{padding:0 12px;}
+  .hd-title{font-size:13px;}
+  .hd-badge{display:none;}
+  .hd-page{display:none;}
+
+  /* Content padding */
+  .content{padding:12px;}
+
+  /* Stats cards — 2 kolom di mobile */
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .sc-val{font-size:24px;}
+
+  /* Chart wrap — hilangkan min-width agar tidak overflow */
+  .chart-wrap{padding:10px 10px;overflow-x:auto;}
+  #hourly-chart{min-width:0!important;}
+  .chart-wrap > div{min-width:300px!important;}
+
+  /* Panel */
+  .panel-hdr{padding:10px 12px;flex-wrap:wrap;gap:6px;}
+  .panel-body{padding:12px;}
+  .panel-title{font-size:13px;}
+
+  /* Form grid — 1 kolom */
+  .form-grid{grid-template-columns:1fr;gap:10px;padding:12px;}
+  .form-actions{padding:0 12px 12px;flex-wrap:wrap;}
+
+  /* Table — scroll horizontal */
+  .tbl-wrap{padding:0 0 12px;overflow-x:auto;}
+  table{font-size:12px;}
+  th,td{padding:7px 8px;white-space:nowrap;}
+
+  /* Svc stat grid — 1 kolom */
+  .svc-stat-grid{grid-template-columns:1fr;}
+
+  /* Info grid — 1 kolom */
+  .info-grid{grid-template-columns:1fr;}
+  .info-card{border-top-width:3px;}
+
+  /* Break card */
+  .break-card{flex-direction:column;align-items:flex-start;}
+
+  /* Schedule rows */
+  .schedule-row{gap:6px;}
+  .schedule-time{flex-wrap:wrap;}
+
+  /* Modal */
+  .modal-bg{padding:12px;}
+  .modal{padding:18px;border-radius:10px;}
+
+  /* Toast */
+  .toast{top:auto;bottom:16px;right:8px;left:8px;max-width:none;transform:translateY(120%);}
+  .toast.show{transform:translateY(0);}
+
+  /* Buttons */
+  .btn{padding:7px 11px;font-size:12px;}
+  .btn-sm{padding:4px 8px;font-size:11px;}
+
+  /* Audio items */
+  .audio-item{flex-wrap:wrap;gap:6px;}
+  .ai-actions{flex-wrap:wrap;}
+
+  /* Log rows */
+  .log-row{flex-direction:column;gap:2px;}
+
+  /* Drop zone */
+  .drop-zone{padding:18px 12px;}
+
+  /* License box */
+  .license-box{max-height:95vh;}
+  .license-header{padding:16px 18px 14px;}
+  .license-app-name{font-size:18px;}
+  .license-body{padding:14px 18px;}
+  .license-text{font-size:11px;max-height:160px;}
+}
+
+@media(max-width:480px){
+  /* Ultra-narrow phones */
+  .header{height:48px;}
+  .layout{height:calc(100vh - 48px);}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:6px;}
+  .sc-val{font-size:20px;}
+  .sc-lbl{font-size:9px;}
+  .stat-card{padding:10px 12px;}
+  .hd-title{font-size:12px;}
+  .hd-btn{display:none;}
+  /* Sembunyikan tombol header selain toggle dark & logout */
+  .hd-right .hd-btn:not(#hd-break-btn){display:none;}
+  .break-card-title{font-size:13px;}
+  .nav-item{font-size:12px;padding:8px 8px;}
+  .nav-ico{font-size:13px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── License Agreement Overlay ── -->
+<div id="license-overlay" class="license-overlay">
+  <div class="license-box">
+    <div class="license-header">
+      <div class="license-dev-badge">
+        <span>⚙</span>
+        <span>Perangkat Lunak Resmi</span>
+      </div>
+      <div class="license-app-name">Sistem Antrian Digital<br>SPMB SDN Kramat 03 PG</div>
+      <div class="license-version">Versi 4.1.0 &nbsp;·&nbsp; © 2026</div>
+      <div class="license-author-row">
+        <div class="license-avatar">CW</div>
+        <div class="license-author-info">
+          <div class="license-author-name">Cahyana Wijaya</div>
+          <div class="license-author-contact">🎵 TikTok: @mrkuncen</div>
+        </div>
+      </div>
+    </div>
+    <div class="license-body">
+      <div class="license-section-title">Perjanjian Lisensi Penggunaan</div>
+      <div class="license-text">PERJANJIAN LISENSI PENGGUNAAN PERANGKAT LUNAK
+Sistem Antrian Digital - SPMB SDN Kramat 03 PG
+===============================================
+
+Hak Cipta (c) 2026 - Cahyana Wijaya
+Semua hak dilindungi undang-undang.
+
+SYARAT DAN KETENTUAN PENGGUNAAN:
+
+1. LISENSI PENGGUNAAN
+   Perangkat lunak ini diberikan lisensi penggunaan terbatas
+   hanya untuk keperluan resmi instansi/sekolah yang bersangkutan.
+
+2. LARANGAN
+   Pengguna DILARANG:
+   a. Menyalin, mendistribusikan, atau menjual perangkat lunak ini
+      tanpa izin tertulis dari pengembang.
+   b. Melakukan rekayasa balik (reverse engineering) terhadap
+      perangkat lunak ini.
+   c. Menggunakan perangkat lunak ini untuk keperluan komersial
+      tanpa izin tertulis.
+   d. Menghapus atau mengubah informasi hak cipta yang terdapat
+      dalam perangkat lunak ini.
+
+3. TANGGUNG JAWAB
+   Pengembang tidak bertanggung jawab atas kerusakan data atau
+   kerugian yang timbul akibat penggunaan perangkat lunak ini.
+
+4. DUKUNGAN TEKNIS
+   Untuk dukungan teknis, hubungi:
+   TikTok : @mrkuncen
+
+5. PERSETUJUAN
+   Dengan menggunakan perangkat lunak ini, Anda menyatakan telah
+   membaca, memahami, dan menyetujui seluruh syarat dan ketentuan
+   yang tercantum dalam perjanjian ini.
+
+===============================================
+Sistem Antrian Digital v4.1.0
+Dikembangkan oleh Cahyana Wijaya</div>
+
+      <div class="license-agree-row" onclick="toggleAgree()">
+        <input type="checkbox" id="license-chk" onchange="toggleAgree()">
+        <label for="license-chk">Saya telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan Perjanjian Lisensi Penggunaan Perangkat Lunak ini.</label>
+      </div>
+    </div>
+    <div class="license-footer">
+      <button class="license-btn" id="license-btn" onclick="acceptLicense()" disabled>
+        Lanjutkan ke Admin Panel →
+      </button>
+      <div class="license-copyright">© 2026 Cahyana Wijaya · Dikembangkan untuk SDN Kramat 03 PG</div>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="hd-left">
+    <div class="icon-btn" onclick="toggleSB()">☰</div>
+    <div class="hd-logo"><img src="/logo-tutwuri.png" alt="Tut Wuri Handayani" style="width:22px;height:22px;object-fit:contain;"></div>
+    <div class="hd-title">Admin Panel</div>
+    <span class="hd-badge">v4.0</span>
+  </div>
+  <span class="hd-page" id="page-title">Dashboard</span>
+  <div class="hd-right">
+    <button class="hd-btn btn-break-off" id="hd-break-btn" onclick="toggleBreak()" title="Mode Istirahat">☕ Istirahat</button>
+    <button class="hd-btn hd-btn-ghost" onclick="toggleDark()" title="Dark Mode">🌙</button>
+    <div id="admin-conn-dot" title="Terhubung" style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;transition:background .3s;"></div>
+    <button class="hd-btn hd-btn-red" onclick="doLogout()" title="Keluar">↩ Keluar</button>
+  </div>
+</header>
+
+<div class="sb-overlay" id="sb-overlay" onclick="closeSB()"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo"><img src="/logo-tutwuri.png" alt="Tut Wuri Handayani" style="width:100%;height:100%;object-fit:contain;"></div>
+      <div class="sb-name">Admin Panel</div>
+      <div class="sb-sub" id="admin-sb-sub">Antrian SPMB</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-group">
+        <div class="nav-group-title">Utama</div>
+        <div class="nav-item active" onclick="gotoTab('dashboard',this)"><span class="nav-ico">📊</span>Dashboard</div>
+        <div class="nav-item" onclick="window.open('/display', '_blank')"><span class="nav-ico">📺</span>Layar Display ↗</div>
+        <div class="nav-item" onclick="gotoTab('services',this)"><span class="nav-ico">🗂</span>Layanan</div>
+        <div class="nav-item" onclick="gotoTab('counters',this)"><span class="nav-ico">🖥</span>Loket</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Pengguna</div>
+        <div class="nav-item" onclick="gotoTab('users',this)"><span class="nav-ico">👤</span>Pengguna</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Sistem</div>
+        <div class="nav-item" onclick="gotoTab('audio',this)"><span class="nav-ico">🔊</span>Suara Kustom</div>
+        <div class="nav-item" onclick="gotoTab('video',this)"><span class="nav-ico">🎬</span>Videotron</div>
+        <div class="nav-item" onclick="gotoTab('logo',this)"><span class="nav-ico">🖼️</span>Logo Instansi</div>
+        <div class="nav-item" onclick="gotoTab('backup',this)"><span class="nav-ico">💾</span>Backup & Export</div>
+        <div class="nav-item" onclick="gotoTab('log',this)"><span class="nav-ico">📋</span>Log Aktivitas</div>
+        <div class="nav-item" onclick="gotoTab('reset',this)"><span class="nav-ico">🔄</span>Reset Antrian</div>
+        <div class="nav-item" onclick="gotoTab('settings',this)"><span class="nav-ico">⚙</span>Pengaturan</div>
+        <div class="nav-item" onclick="gotoTab('about',this)"><span class="nav-ico">ℹ️</span>Tentang Aplikasi</div>
+      </div>
+    </nav>
+    <div class="sb-footer">
+      <button class="sb-util sb-dark" id="dm-btn" onclick="toggleDark()">🌙 Dark Mode</button>
+      <button class="sb-util sb-logout" onclick="doLogout()">↩ Keluar</button>
+      <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);text-align:center">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Sistem Antrian</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px" id="admin-sb-inst">SPMB SDN Kramat 03 PG</div>
+        <span id="admin-school-year" style="display:inline-flex;align-items:center;gap:5px;background:#003580;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;">
+          🏫 Tahun Ajaran 2026/2027
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="toast" id="toast"></div>
+
+
+    <!-- TENTANG APLIKASI -->
+    <div id="tab-about" class="tab-content">
+      <div style="max-width:720px;margin:0 auto;padding:8px 0 32px;">
+
+        <!-- Hero card -->
+        <div style="background:linear-gradient(135deg,var(--blue) 0%,#0050b3 100%);border-radius:16px;padding:36px 32px;margin-bottom:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+          <div style="position:absolute;bottom:-60px;right:20px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.04);"></div>
+          <div style="position:relative;z-index:1;">
+            <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;margin-bottom:18px;">
+              <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:1px;text-transform:uppercase;">Sistem Antrian Digital</span>
+            </div>
+            <h2 style="font-size:28px;font-weight:900;color:#fff;margin:0 0 6px;letter-spacing:-.5px;" id="admin-dash-title">Antrian SPMB</h2>
+            <p id="admin-dash-sub" style="font-size:14px;color:rgba(255,255,255,.7);margin:0 0 20px;line-height:1.6;">Platform pengelolaan antrian terpadu berbasis web untuk mendukung proses SPMB yang efisien, tertib, dan transparan.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <span style="background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;padding:5px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.2);">v4.1</span>
+              <span style="background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;padding:5px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.2);">Node.js</span>
+              <span style="background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;padding:5px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.2);">Open Source</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developer card -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:16px;box-shadow:var(--shadow);">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+            <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#003580,#0050b3);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">👨‍💻</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Dikembangkan oleh</div>
+              <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-.3px;">Cahyana Wijaya</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;">
+              <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">Spesialisasi</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Full-Stack Web Developer</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;">
+              <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">Fokus</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Aplikasi Pemerintahan & Pendidikan</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fitur grid -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:16px;box-shadow:var(--shadow);">
+          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px;">Fitur Utama</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">🎫</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Kiosk Antrian</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Ambil nomor mandiri dengan cetak tiket + QR</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">📺</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Layar Display</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Tampilan realtime dengan notifikasi suara</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">🖥</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Multi Loket</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Panggil & layani antrian dari loket masing-masing</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">📊</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Grafik Realtime</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Statistik antrian per jam secara live</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">📤</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Export Laporan</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Unduh data dalam format Excel & PDF</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">🔊</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Suara Kustom</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Upload audio panggilan sendiri</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">🎬</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Videotron</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Putar video promosi di layar display</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:20px;flex-shrink:0;">⚙️</span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:3px;">Pengaturan Lengkap</div><div style="font-size:11px;color:var(--text3);line-height:1.5;">Volume, kecepatan, nada suara & jadwal istirahat</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tech stack -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:16px;box-shadow:var(--shadow);">
+          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px;">Teknologi</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">Node.js</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">HTML5</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">CSS3</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">JavaScript ES6+</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">Chart.js</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">SheetJS</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">jsPDF</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">QRCode.js</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">Web Speech API</span>
+            <span style="background:var(--blue-lt);color:var(--blue2);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--blue-md);">Server-Sent Events</span>
+          </div>
+        </div>
+
+        <!-- Copyright -->
+        <div style="text-align:center;padding:16px;font-size:12px;color:var(--text3);">
+          © 2026 <strong style="color:var(--text);">Cahyana Wijaya</strong>. Hak cipta dilindungi undang-undang.<br>
+          Dibuat dengan ❤️ untuk <span id="admin-footer-inst">SDN Kramat 03 PG</span> · <span id="admin-footer-year">Tahun Ajaran 2026/2027</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content show">
+      <!-- Kartu Mode Istirahat -->
+      <div class="break-card" id="break-card">
+        <div class="break-card-info">
+          <div class="break-card-title"><span class="break-status-dot"></span><span id="break-card-title">Pelayanan Aktif</span></div>
+          <div class="break-card-sub" id="break-card-sub">Klik tombol untuk mengaktifkan mode istirahat pada layar display.</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="fg" style="min-width:200px;margin:0">
+            <input id="break-msg-input" placeholder="Pesan istirahat (opsional)" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;outline:none;width:100%">
+          </div>
+          <button class="btn btn-break-off" id="break-btn" onclick="toggleBreak()">☕ Aktifkan Istirahat</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleSchedulePanel()" title="Atur Jadwal Otomatis">🕐 Jadwal</button>
+        </div>
+      </div>
+
+      <!-- Panel Jadwal Istirahat -->
+      <div id="schedule-panel" style="display:none;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden">
+        <div class="panel-hdr" style="border-bottom:1px solid var(--border)">
+          <div class="panel-title">🕐 Jadwal Istirahat Otomatis</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="addScheduleRow()">+ Tambah Jadwal</button>
+            <button class="btn btn-success btn-sm" onclick="saveSchedule()">💾 Simpan</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Server akan otomatis mengaktifkan & menonaktifkan mode istirahat sesuai jadwal di bawah (dicek tiap 30 detik).</p>
+          <div id="schedule-rows"></div>
+          <div id="schedule-empty" style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">Belum ada jadwal. Klik "+ Tambah Jadwal" untuk menambahkan.</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card sc-blue"><div class="sc-val" id="st-total">0</div><div class="sc-lbl">Total</div></div>
+        <div class="stat-card sc-yellow"><div class="sc-val" id="st-wait">0</div><div class="sc-lbl">Menunggu</div></div>
+        <div class="stat-card sc-purple"><div class="sc-val" id="st-serve">0</div><div class="sc-lbl">Dilayani</div></div>
+        <div class="stat-card sc-green"><div class="sc-val" id="st-done">0</div><div class="sc-lbl">Selesai</div></div>
+        <div class="stat-card sc-red"><div class="sc-val" id="st-skip">0</div><div class="sc-lbl">Dilewati</div></div>
+      </div>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">📈 Antrian per Jam (Hari Ini)</div><button class="btn btn-ghost btn-sm" onclick="loadHourly()">↺ Refresh</button></div>
+        <div class="chart-wrap">
+          <div style="position:relative;height:180px;min-width:0;width:100%"><canvas id="hourly-chart"></canvas></div>
+          <div style="display:flex;gap:16px;margin-top:8px">
+            <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:3px;background:var(--blue2);border-radius:2px"></span>Masuk</span>
+            <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:3px;background:var(--green);border-radius:2px"></span>Selesai</span>
+          </div>
+          <div id="peak-hour" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Statistik per Layanan</div><button class="btn btn-ghost btn-sm" onclick="loadStats()">↺ Refresh</button></div>
+        <div class="svc-stat-grid" id="svc-stat-grid"></div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div id="tab-services" class="tab-content">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">Tambah Layanan Baru</div></div>
+        <div class="form-grid">
+          <div class="fg"><label>Nama Layanan</label><input id="svc-name" placeholder="Contoh: Administrasi"></div>
+          <div class="fg"><label>Kode Prefix <span style="font-weight:400;color:var(--text3)">(opsional)</span></label><input id="svc-prefix" placeholder="Contoh: A" maxlength="3" style="text-transform:uppercase"></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="addService()">+ Tambah Layanan</button></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Daftar Layanan</div><button class="btn btn-ghost btn-sm" onclick="loadServices()">↺</button></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Kode</th><th>Nama Layanan</th><th>Status</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="svc-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- COUNTERS -->
+    <div id="tab-counters" class="tab-content">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">Tambah Loket</div></div>
+        <div class="form-grid">
+          <div class="fg"><label>Nama Loket</label><input id="ctr-name" placeholder="Contoh: Loket 4"></div>
+          <div class="fg"><label>Nama Petugas</label><input id="ctr-op" placeholder="Contoh: Budi Santoso"></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="addCounter()">+ Tambah Loket</button></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Daftar Loket</div><button class="btn btn-ghost btn-sm" onclick="loadCounters()">↺</button></div>
+        <div class="tbl-wrap"><table><thead><tr><th>No</th><th>Nama Loket</th><th>Petugas</th><th>Sedang Melayani</th><th>Aksi</th></tr></thead><tbody id="ctr-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="tab-users" class="tab-content">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">Tambah Pengguna</div></div>
+        <div class="form-grid">
+          <div class="fg"><label>Nama Pengguna</label><input id="u-name" placeholder="Contoh: petugas2"></div>
+          <div class="fg"><label>Kata Sandi</label><input id="u-pass" type="password" placeholder="Minimal 6 karakter"></div>
+          <div class="fg"><label>Hak Akses</label>
+            <select id="u-role">
+              <option value="officer">Petugas Loket</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="addUser()">+ Tambah Pengguna</button></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Daftar Pengguna</div><button class="btn btn-ghost btn-sm" onclick="loadUsers()">↺</button></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Nama Pengguna</th><th>Hak Akses</th><th>Aksi</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- AUDIO -->
+    <div id="tab-audio" class="tab-content">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">Upload Suara Kustom</div></div>
+        <div class="panel-body">
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('audio-file').click()">
+            <div class="dz-icon">🎵</div>
+            <div class="dz-text">Seret file audio ke sini atau klik untuk memilih file</div>
+            <label class="btn btn-primary" style="cursor:pointer">
+              Pilih File Audio (MP3 / WAV / OGG)
+              <input type="file" id="audio-file" accept=".mp3,.wav,.ogg" style="display:none" onchange="uploadAudio(this)">
+            </label>
+          </div>
+          <div id="upload-progress" style="display:none;font-size:13px;color:var(--blue2);margin-top:10px;font-weight:600">⏳ Sedang mengupload file…</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">File Audio Tersimpan</div><button class="btn btn-ghost btn-sm" onclick="loadAudio()">↺</button></div>
+        <div class="panel-body" id="audio-list">Memuat…</div>
+      </div>
+    </div>
+
+    <!-- VIDEOTRON MEDIA (VIDEO/IMAGE) -->
+    <div id="tab-video" class="tab-content">
+      <!-- Pengaturan Slideshow -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">⚙ Pengaturan Slideshow</div></div>
+        <div class="panel-body">
+          <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+            <div class="fg" style="min-width:160px">
+              <label>Durasi Tiap Slide (detik)</label>
+              <input type="number" id="slide-duration" min="2" max="60" value="5" style="width:100%">
+            </div>
+            <div class="fg" style="min-width:200px">
+              <label>Cetak Tiket Otomatis di Kiosk</label>
+              <select id="auto-print">
+                <option value="0">Tidak (manual)</option>
+                <option value="1">Ya (otomatis 5 detik)</option>
+              </select>
+            </div>
+            <button class="btn btn-success" onclick="saveSlideSettings()">💾 Simpan</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">Media Videotron</div></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+            Media ini (Video atau Gambar) akan ditampilkan di area utama halaman Display.<br>
+            Format: <strong>MP4/WEBM atau JPG/PNG/GIF</strong> — Maks <strong>100 MB</strong>.
+          </p>
+          <div class="drop-zone" id="drop-zone-video" onclick="document.getElementById('video-file').click()">
+            <div class="dz-icon">🖼️/🎬</div>
+            <div class="dz-text">Seret file media ke sini atau klik untuk memilih file</div>
+            <label class="btn btn-primary" style="cursor:pointer">
+              Pilih File (Video atau Gambar)
+              <input type="file" id="video-file" accept=".mp4,.webm,.mov,.jpg,.jpeg,.png,.gif,.webp" style="display:none" onchange="uploadVideo(this)">
+            </label>
+          </div>
+          <div id="video-upload-progress" style="display:none;margin-top:14px;">
+            <div style="font-size:13px;color:var(--blue2);font-weight:600;margin-bottom:6px" id="video-progress-txt">⏳ Memulai upload…</div>
+            <div style="background:var(--border);border-radius:100px;height:8px;overflow:hidden;">
+              <div id="video-progress-bar" style="height:100%;background:var(--blue3);border-radius:100px;width:0%;transition:width .3s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Media Tersimpan</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:11px;color:var(--text3)">Seret gambar untuk mengatur urutan slideshow</span>
+            <button class="btn btn-ghost btn-sm" onclick="loadVideo()">↺</button>
+          </div>
+        </div>
+        <div class="panel-body" id="video-list">Memuat…</div>
+      </div>
+    </div>
+
+    <!-- BACKUP -->
+    <div id="tab-backup" class="tab-content">
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>Export Data</h4>
+          <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px">Download data antrian hari ini dalam berbagai format.</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <a href="/api/export/csv" class="btn btn-success" target="_blank" style="text-decoration:none">⬇ Download CSV</a>
+            <button class="btn btn-primary" onclick="exportExcel()">📊 Download Excel (.xlsx)</button>
+            <button class="btn btn-ghost" onclick="exportPDF()" style="border-color:var(--red);color:var(--red)">📄 Download PDF</button>
+          </div>
+        </div>
+        <div class="info-card">
+          <h4>Backup Database</h4>
+          <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px">Buat salinan cadangan database sekarang. Backup otomatis dibuat setiap 6 jam.</p>
+          <button class="btn btn-primary" onclick="doManualBackup()">💾 Backup Sekarang</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Riwayat Backup</div><button class="btn btn-ghost btn-sm" onclick="loadBackupList()">↺</button></div>
+        <div class="panel-body" id="backup-list">Memuat…</div>
+      </div>
+    </div>
+
+    <!-- LOGO -->
+    <div id="tab-logo" class="tab-content">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-hdr"><div class="panel-title">Pengaturan Logo Instansi</div></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+            Logo ini akan ditampilkan pada halaman Display, Kiosk, dan Tiket cetak.<br>
+            Format: <strong>PNG, JPG, SVG, atau WEBP</strong> — Maks <strong>2 MB</strong>.
+          </p>
+          <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+            <div style="flex:1;min-width:280px">
+              <div class="drop-zone" id="drop-zone-logo" onclick="document.getElementById('logo-file').click()">
+                <div class="dz-icon">🖼️</div>
+                <div class="dz-text">Seret file logo ke sini atau klik untuk memilih file</div>
+                <label class="btn btn-primary" style="cursor:pointer">
+                  Pilih File Logo
+                  <input type="file" id="logo-file" accept=".jpg,.jpeg,.png,.svg,.webp" style="display:none" onchange="uploadLogo(this)">
+                </label>
+              </div>
+              <div id="logo-upload-progress" style="display:none;font-size:13px;color:var(--blue2);margin-top:10px;font-weight:600">⏳ Sedang mengupload logo…</div>
+            </div>
+            <div class="panel" style="width:180px;flex-shrink:0;">
+              <div class="panel-hdr"><div class="panel-title">Preview Logo</div></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--bg2)">
+                <img id="logo-preview" src="/logo-tutwuri.png" style="width:100px;height:100px;object-fit:contain;background:#fff;padding:10px;border-radius:8px;border:1px solid var(--border)">
+                <button class="btn btn-danger btn-sm" onclick="resetLogo()">Reset ke Default</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div id="tab-log" class="tab-content">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Log Aktivitas Sistem</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input id="log-search" placeholder="Cari aktivitas…" oninput="filterLog()"
+              style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;outline:none;width:150px">
+            <select id="log-action-filter" onchange="filterLog()"
+              style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;outline:none;">
+              <option value="">Semua Aksi</option>
+              <option value="LOGIN">LOGIN</option>
+              <option value="LOGIN_FAILED">LOGIN GAGAL</option>
+              <option value="LOGOUT">LOGOUT</option>
+              <option value="RESET_QUEUE">RESET</option>
+              <option value="ADD_SERVICE">TAMBAH LAYANAN</option>
+              <option value="EDIT_SERVICE">EDIT LAYANAN</option>
+              <option value="ADD_USER">TAMBAH USER</option>
+              <option value="DELETE_USER">HAPUS USER</option>
+              <option value="CHANGE_PASSWORD">GANTI PASSWORD</option>
+            </select>
+            <input id="log-date-filter" type="date" onchange="filterLog()"
+              style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;outline:none;">
+            <button class="btn btn-ghost btn-sm" onclick="exportLogCSV()" title="Export ke CSV">⬇ CSV</button>
+            <button class="btn btn-ghost btn-sm" onclick="loadLog()">↺</button>
+          </div>
+        </div>
+        <div class="panel-body" style="max-height:520px;overflow-y:auto" id="log-list"><div style="color:var(--text3);font-size:13px">Memuat…</div></div>
+      </div>
+    </div>
+
+    <!-- RESET -->
+    <div id="tab-reset" class="tab-content">
+      <div class="reset-warn">
+        <h3>⚠ Reset Semua Antrian Hari Ini</h3>
+        <p>Tindakan ini akan menghapus seluruh data antrian hari ini dan mereset semua loket ke kondisi awal. Backup database akan dibuat secara otomatis sebelum reset dilakukan. Tindakan ini tidak dapat dibatalkan.</p>
+        <button class="btn btn-danger" onclick="doReset()">🔄 Reset Sekarang</button>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Reset Otomatis Tengah Malam</div></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7">Sistem secara otomatis mereset semua antrian setiap tengah malam (00:00). Backup otomatis dibuat sebelum setiap reset. Sistem memeriksa jadwal reset setiap 60 detik.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="tab-content">
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Pengaturan Umum</div></div>
+        <div class="form-grid">
+          <div class="fg"><label>Nama Instansi</label><input id="set-name" placeholder="Nama instansi/lembaga"></div>
+          <div class="fg"><label>Subjudul</label><input id="set-sub" placeholder="Tagline atau keterangan singkat"></div>
+          <div class="fg" style="grid-column:1/-1"><label>Teks Berjalan (Running Text)</label><textarea id="set-run" placeholder="Teks yang ditampilkan di bagian bawah layar display"></textarea></div>
+        </div>
+
+        <!-- Volume Control -->
+        <div style="margin-top:16px;padding:16px;border-top:1px solid var(--border);background:var(--bg);border-radius:0 0 10px 10px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:14px;">🔊</span> Pengaturan Suara Panggilan
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;">
+            <!-- Volume -->
+            <div class="fg">
+              <label style="display:flex;justify-content:space-between;align-items:center;">
+                <span>Volume Suara</span>
+                <span id="set-volume-val" style="font-size:12px;font-weight:700;color:var(--blue2);background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:5px;padding:1px 8px;">90%</span>
+              </label>
+              <input type="range" id="set-volume" min="0" max="100" value="90" step="1"
+                style="width:100%;accent-color:var(--blue2);margin-top:2px;"
+                oninput="document.getElementById('set-volume-val').textContent=this.value+'%'">
+            </div>
+            <!-- Kecepatan -->
+            <div class="fg">
+              <label style="display:flex;justify-content:space-between;align-items:center;">
+                <span>Kecepatan Bicara</span>
+                <span id="set-rate-val" style="font-size:12px;font-weight:700;color:var(--blue2);background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:5px;padding:1px 8px;">0.78×</span>
+              </label>
+              <input type="range" id="set-rate" min="50" max="150" value="78" step="1"
+                style="width:100%;accent-color:var(--blue2);margin-top:2px;"
+                oninput="document.getElementById('set-rate-val').textContent=(this.value/100).toFixed(2)+'×'">
+            </div>
+            <!-- Pitch -->
+            <div class="fg">
+              <label style="display:flex;justify-content:space-between;align-items:center;">
+                <span>Nada Suara (Pitch)</span>
+                <span id="set-pitch-val" style="font-size:12px;font-weight:700;color:var(--blue2);background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:5px;padding:1px 8px;">1.02×</span>
+              </label>
+              <input type="range" id="set-pitch" min="80" max="130" value="102" step="1"
+                style="width:100%;accent-color:var(--blue2);margin-top:2px;"
+                oninput="document.getElementById('set-pitch-val').textContent=(this.value/100).toFixed(2)+'×'">
+            </div>
+            <!-- Maks. Panggilan Ulang -->
+            <div class="fg">
+              <label>Maks. Panggilan Ulang</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <input type="number" id="set-max-recall" min="1" max="10" value="3"
+                  style="width:72px;background:var(--white);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;text-align:center;">
+                <span style="font-size:12px;color:var(--text3);">kali sebelum otomatis dilewati</span>
+              </div>
+            </div>
+          </div>
+          <!-- Tombol Tes & Simpan -->
+          <div style="display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+            <button class="btn btn-ghost" onclick="testVoice()" style="gap:6px;">🔔 Coba Panggilan</button>
+            <button class="btn btn-success" onclick="saveSettings()" style="gap:6px;">💾 Simpan Pengaturan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Service Modal -->
+<div class="modal-bg" id="modal-edit">
+  <div class="modal">
+    <div class="modal-title">Edit Layanan</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input type="hidden" id="edit-id">
+      <div class="fg"><label>Nama Layanan</label><input id="edit-name"></div>
+      <div class="fg"><label>Kode Prefix <span style="font-weight:400;color:var(--text3)">(opsional)</span></label><input id="edit-prefix" maxlength="3" style="text-transform:uppercase"></div>
+      <div class="fg"><label>Status</label><select id="edit-status"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-edit')">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveEdit()">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Security helpers ──────────────────────────────────────────────────────────
+// [FIX] Escape HTML entities — cegah XSS saat data user dimasukkan ke innerHTML
+function escapeHTML(str){
+  if(str===null||str===undefined)return'';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// [FIX] Escape untuk nilai di dalam onclick="fn(id,'VALUE')" — cegah JS injection
+function escapeAttr(str){
+  if(str===null||str===undefined)return'';
+  return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+let _tt;
+function showToast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=(type==='ok'?'✓ ':'⚠ ')+msg;
+  el.className='toast show'+(type==='err'?' err':'');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);
+}
+function openModal(id){const m=document.getElementById(id);m.classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sb-overlay').classList.toggle('show');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('show');}
+
+// Dark mode
+if(localStorage.getItem('admin_dark')==='1')document.body.classList.add('dark');
+function updateDmBtn(){document.getElementById('dm-btn').textContent=document.body.classList.contains('dark')?'☀️ Light Mode':'🌙 Dark Mode';}
+updateDmBtn();
+function toggleDark(){const d=document.body.classList.toggle('dark');localStorage.setItem('admin_dark',d?'1':'0');updateDmBtn();}
+
+// Tab navigation
+const TAB_TITLES={dashboard:'Dashboard',services:'Manajemen Layanan',counters:'Manajemen Loket',users:'Manajemen Pengguna',audio:'Suara Kustom',video:'Media Videotron',logo:'Logo Instansi',backup:'Backup & Export',log:'Log Aktivitas',reset:'Reset Antrian',settings:'Pengaturan'};
+function gotoTab(tab,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('show'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('show');
+  if(el)el.classList.add('active');
+  document.getElementById('page-title').textContent=TAB_TITLES[tab]||tab;
+  if(tab==='dashboard'){loadStats();loadHourly();}
+  if(tab==='services')loadServices();
+  if(tab==='counters')loadCounters();
+  if(tab==='users')loadUsers();
+  if(tab==='audio')loadAudio();
+  if(tab==='video')loadVideo();
+  if(tab==='logo')loadLogoPreview();
+  if(tab==='backup')loadBackupList();
+  if(tab==='log')loadLog();
+  if(tab==='settings')loadSettings();
+  closeSB();
+}
+
+// Hourly chart
+// ── Chart.js realtime ──────────────────────────────────────────────────────
+let _hourlyChart = null;
+
+async function loadHourly(){
+  try{
+    const data = await fetch('/api/stats/hourly').then(r=>r.json());
+    const now  = new Date().getHours();
+    const active = data.filter(h=>h.hour<=now);
+    const labels  = active.map(h=>h.label);
+    const totals  = active.map(h=>h.total);
+    const serveds = active.map(h=>h.served);
+    const skippeds= active.map(h=>h.total - h.served);
+
+    const isDark = document.body.classList.contains('dark');
+    const gridColor  = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+    const labelColor = isDark ? '#94a3b8' : '#718096';
+
+    if(_hourlyChart){
+      _hourlyChart.data.labels = labels;
+      _hourlyChart.data.datasets[0].data = totals;
+      _hourlyChart.data.datasets[1].data = serveds;
+      _hourlyChart.options.scales.x.ticks.color = labelColor;
+      _hourlyChart.options.scales.y.ticks.color = labelColor;
+      _hourlyChart.options.scales.x.grid.color  = gridColor;
+      _hourlyChart.options.scales.y.grid.color  = gridColor;
+      _hourlyChart.update('active');
+    } else {
+      const ctx = document.getElementById('hourly-chart').getContext('2d');
+      _hourlyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Antrian Masuk',
+              data: totals,
+              backgroundColor: 'rgba(0,80,179,0.7)',
+              borderColor: '#0050b3',
+              borderWidth: 1.5,
+              borderRadius: 4,
+              borderSkipped: false,
+            },
+            {
+              label: 'Selesai Dilayani',
+              data: serveds,
+              backgroundColor: 'rgba(26,122,60,0.75)',
+              borderColor: '#1a7a3c',
+              borderWidth: 1.5,
+              borderRadius: 4,
+              borderSkipped: false,
+            },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 500 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: { font:{ family:'Plus Jakarta Sans', size:11, weight:'600' }, color: labelColor, boxWidth:12, boxHeight:8, padding:14 }
+            },
+            tooltip: {
+              backgroundColor: isDark?'#1e2a3a':'#fff',
+              borderColor: isDark?'#2a3f5a':'#d1dce8',
+              borderWidth: 1,
+              titleColor: isDark?'#e8eef5':'#1a2332',
+              bodyColor: isDark?'#94a3b8':'#4a5568',
+              titleFont:{ family:'Plus Jakarta Sans', weight:'700' },
+              bodyFont:{ family:'Plus Jakarta Sans' },
+              padding: 10,
+              callbacks:{
+                afterBody(ctx){ const idx=ctx[0].dataIndex; const sk=skippeds[idx]||0; return sk?`Dilewati: ${sk}`:''; }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid:{ color: gridColor },
+              ticks:{ color: labelColor, font:{ family:'Plus Jakarta Sans', size:10 }, maxRotation:0 }
+            },
+            y: {
+              beginAtZero: true,
+              grid:{ color: gridColor },
+              ticks:{ color: labelColor, font:{ family:'Plus Jakarta Sans', size:10 }, stepSize:1, precision:0 }
+            }
+          }
+        }
+      });
+    }
+
+    const peak = active.reduce((a,b)=>a.total>b.total?a:b,{total:0,label:''});
+    const peakEl = document.getElementById('peak-hour');
+    if(peakEl) peakEl.textContent = peak.total>0 ? `⏰ Jam tersibuk: ${peak.label} — ${peak.total} antrian masuk` : '';
+  }catch(e){ console.error('Chart error',e); }
+}
+
+// Stats
+async function loadStats(){
+  try{
+    const s=await fetch('/api/stats').then(r=>r.json());
+    document.getElementById('st-total').textContent=s.total;
+    document.getElementById('st-wait').textContent=s.waiting;
+    document.getElementById('st-serve').textContent=s.serving;
+    document.getElementById('st-done').textContent=s.served;
+    document.getElementById('st-skip').textContent=s.skipped;
+    document.getElementById('svc-stat-grid').innerHTML=Object.entries(s.byService||{}).map(([name,d])=>`
+      <div class="svc-stat">
+        <div class="ss-pre">${d.prefix||name[0]}</div>
+        <div class="ss-name">${name}</div>
+        <div class="ss-row">
+          <div class="ss-item"><span>${d.total||0}</span><small>Total</small></div>
+          <div class="ss-item"><span style="color:var(--yellow)">${d.waiting||0}</span><small>Tunggu</small></div>
+          <div class="ss-item"><span style="color:var(--green)">${d.served||0}</span><small>Selesai</small></div>
+        </div>
+      </div>`).join('')||'<div style="padding:16px;color:var(--text3);font-size:13px">Belum ada data</div>';
+  }catch{}
+}
+
+// Services
+async function loadServices(){
+  try{
+    const s=await fetch('/api/services/active').then(r=>r.json());
+    document.getElementById('svc-tbody').innerHTML=s.map(sv=>`
+      <tr>
+        <td><span style="font-size:20px;font-weight:800;color:var(--blue)">${escapeHTML(sv.prefix)}</span></td>
+        <td style="font-weight:600">${escapeHTML(sv.name)}</td>
+        <td><span class="badge ${sv.active?'bg-green':'bg-red'}">${sv.active?'Aktif':'Nonaktif'}</span></td>
+        <td style="color:var(--text3)">${new Date(sv.created_at).toLocaleDateString('id-ID')}</td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="editService(${sv.id},'${escapeAttr(sv.name)}','${escapeAttr(sv.prefix)}',${sv.active})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="delService(${sv.id})">Hapus</button>
+        </td>
+      </tr>`).join('');
+  }catch{}
+}
+async function addService(){
+  const name=document.getElementById('svc-name').value.trim();
+  const prefix=document.getElementById('svc-prefix').value.trim().toUpperCase();
+  if(!name)return showToast('Nama layanan wajib diisi','err');
+  const r=await fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,prefix})}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Layanan berhasil ditambahkan');
+  document.getElementById('svc-name').value='';document.getElementById('svc-prefix').value='';
+  loadServices();
+}
+function editService(id,name,prefix,active){
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-name').value=name;
+  document.getElementById('edit-prefix').value=prefix;
+  document.getElementById('edit-status').value=String(active);
+  openModal('modal-edit');
+}
+async function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  const r=await fetch(`/api/services/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    name:document.getElementById('edit-name').value,
+    prefix:document.getElementById('edit-prefix').value.toUpperCase(),
+    active:document.getElementById('edit-status').value==='true'
+  })}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Layanan diperbarui');closeModal('modal-edit');loadServices();
+}
+async function delService(id){
+  if(!confirm('Hapus layanan ini?'))return;
+  // BUG FIX: Sebelumnya tidak cek response — toast "berhasil" muncul walau server error
+  const r=await fetch(`/api/services/${id}`,{method:'DELETE'});
+  if(!r.ok){ const e=await r.json().catch(()=>({})); return showToast(e.error||'Gagal menghapus layanan','err'); }
+  showToast('Layanan dihapus');loadServices();
+}
+
+// Counters
+async function loadCounters(){
+  try{
+    const c=await fetch('/api/counters').then(r=>r.json());
+    document.getElementById('ctr-tbody').innerHTML=c.map((ct,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td style="font-weight:700">${escapeHTML(ct.name)}</td>
+        <td style="color:var(--text2)">${escapeHTML(ct.operator)||'—'}</td>
+        <td>${ct.current_queue?`<span class="badge bg-yellow">${escapeHTML(ct.current_queue)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="delCounter(${ct.id})">Hapus</button></td>
+      </tr>`).join('');
+  }catch{}
+}
+async function addCounter(){
+  const name=document.getElementById('ctr-name').value.trim();
+  const op=document.getElementById('ctr-op').value.trim();
+  if(!name)return showToast('Nama loket wajib diisi','err');
+  const r=await fetch('/api/counters',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,operator:op})}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Loket berhasil ditambahkan');
+  document.getElementById('ctr-name').value='';document.getElementById('ctr-op').value='';
+  loadCounters();
+}
+async function delCounter(id){
+  if(!confirm('Hapus loket ini?'))return;
+  // BUG FIX: Cek HTTP response sebelum toast sukses
+  const r=await fetch(`/api/counters/${id}`,{method:'DELETE'});
+  if(!r.ok){ const e=await r.json().catch(()=>({})); return showToast(e.error||'Gagal menghapus loket','err'); }
+  showToast('Loket dihapus');loadCounters();
+}
+
+// Users
+async function loadUsers(){
+  try{
+    const u=await fetch('/api/users').then(r=>r.json());
+    document.getElementById('users-tbody').innerHTML=u.map(usr=>`
+      <tr>
+        <td style="font-weight:700">${escapeHTML(usr.username)}</td>
+        <td><span class="badge ${usr.role==='admin'?'bg-purple':'bg-blue'}">${usr.role==='admin'?'Administrator':'Petugas Loket'}</span></td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-warning btn-sm" onclick="chgPw(${usr.id},'${escapeAttr(usr.username)}')">Ganti Sandi</button>
+          ${usr.id===1?'':`<button class="btn btn-danger btn-sm" onclick="delUser(${usr.id})">Hapus</button>`}
+        </td>
+      </tr>`).join('');
+  }catch{}
+}
+async function addUser(){
+  const username=document.getElementById('u-name').value.trim();
+  const password=document.getElementById('u-pass').value;
+  const role=document.getElementById('u-role').value;
+  if(!username||!password)return showToast('Nama pengguna dan kata sandi wajib diisi','err');
+  // REKOMENDASI: Validasi panjang password minimal 6 karakter di frontend
+  if(password.length<6)return showToast('Kata sandi minimal 6 karakter','err');
+  const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password,role})}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Pengguna berhasil ditambahkan');
+  document.getElementById('u-name').value='';document.getElementById('u-pass').value='';
+  loadUsers();
+}
+async function delUser(id){
+  if(!confirm('Hapus pengguna ini?'))return;
+  // BUG FIX: Cek HTTP response sebelum toast sukses
+  const r=await fetch(`/api/users/${id}`,{method:'DELETE'});
+  if(!r.ok){ const e=await r.json().catch(()=>({})); return showToast(e.error||'Gagal menghapus pengguna','err'); }
+  showToast('Pengguna dihapus');loadUsers();
+}
+async function chgPw(id,name){
+  const pw=prompt(`Masukkan kata sandi baru untuk ${name}:`);
+  if(!pw)return;
+  // BUG FIX: Tidak ada validasi panjang — password 1 karakter bisa lolos ke server
+  // REKOMENDASI: Validasi minimal 6 karakter agar konsisten dengan addUser
+  if(pw.length<6){return showToast('Kata sandi minimal 6 karakter','err');}
+  const r=await fetch(`/api/users/${id}/password`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Kata sandi berhasil diperbarui');
+}
+
+// Audio
+async function loadAudio(){
+  // BUG FIX: loadAudio sebelumnya tidak punya try/catch — unhandled rejection
+  // jika API gagal, menyebabkan halaman audio crash tanpa feedback ke pengguna.
+  try {
+    const d=await fetch('/api/audio/list').then(r=>r.json());
+    const el=document.getElementById('audio-list');
+    el.innerHTML=d.files.map(f=>`
+    <div class="audio-item${d.active===f?' is-active':''}">
+      <span style="font-size:18px">🎵</span>
+      <div class="ai-name">${escapeHTML(f)}</div>
+      ${d.active===f?'<div class="ai-badge">AKTIF</div>':''}
+      <div class="ai-actions">
+        <audio controls src="/audio/${encodeURIComponent(f)}" style="height:28px;max-width:140px"></audio>
+        ${d.active!==f?`<button class="btn btn-success btn-sm" onclick="setAudio('${escapeAttr(f)}')">Aktifkan</button>`:''}
+        <button class="btn btn-danger btn-sm" onclick="delAudio('${escapeAttr(f)}')">Hapus</button>
+      </div>
+    </div>`).join('')
+    +`<div class="audio-item${!d.active?' is-active':''}">
+      <span style="font-size:18px">🗣️</span>
+      <div class="ai-name" style="color:var(--text2)">Web Speech API (text-to-speech bawaan browser)</div>
+      ${!d.active?'<div class="ai-badge">AKTIF</div>':''}
+      <div class="ai-actions">${d.active?`<button class="btn btn-ghost btn-sm" onclick="setAudio(null)">Gunakan ini</button>`:''}</div>
+    </div>`
+    ||(d.files.length===0?'<p style="color:var(--text3);font-size:13px">Belum ada file audio yang diupload.</p>':'');
+    if(!d.files.length)el.innerHTML='<p style="color:var(--text3);font-size:13px">Belum ada file audio yang diupload.</p>'
+      +el.innerHTML.split('</div>').pop();
+  } catch(e) {
+    // REKOMENDASI: Tampilkan error ke pengguna agar bisa tahu masalahnya
+    const el=document.getElementById('audio-list');
+    if(el) el.innerHTML='<p style="color:var(--red);font-size:13px">⚠ Gagal memuat daftar audio. Coba muat ulang halaman.</p>';
+    console.error('[loadAudio]', e);
+  }
+}
+async function uploadAudio(input){
+  const file=input.files[0];if(!file)return;
+  document.getElementById('upload-progress').style.display='block';
+  const fd=new FormData();fd.append('audio',file);
+  try{
+    const r=await fetch('/api/audio/upload',{method:'POST',body:fd}).then(r=>r.json());
+    if(r.error)showToast(r.error,'err');else{showToast('File berhasil diupload: '+r.filename);loadAudio();}
+  }catch{showToast('Upload gagal','err');}
+  finally{document.getElementById('upload-progress').style.display='none';input.value='';}
+}
+async function setAudio(fname){
+  await fetch('/api/audio/set-active',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:fname})});
+  showToast(fname?`Audio aktif: ${fname}`:'Menggunakan Web Speech API');loadAudio();
+}
+async function delAudio(fname){
+  if(!confirm(`Hapus file "${fname}"?`))return;
+  await fetch(`/api/audio/delete/${encodeURIComponent(fname)}`,{method:'DELETE'});
+  showToast('File berhasil dihapus');loadAudio();
+}
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file){const inp=document.getElementById('audio-file');const dt=new DataTransfer();dt.items.add(file);inp.files=dt.files;uploadAudio(inp);}
+});
+
+// Video
+let _dragSrc = null;
+
+async function loadVideo(){
+  try{
+    const d=await fetch('/api/video/list').then(r=>r.json());
+    const el=document.getElementById('video-list');
+    if(!d.files?.length){
+      el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:8px">Belum ada media. Upload di atas.</p>';
+      return;
+    }
+
+    // Pisahkan gambar dan video
+    const imgs = d.files.filter(f=>/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f));
+    const vids = d.files.filter(f=>!/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f));
+
+    // Urutkan gambar sesuai slide_order yang tersimpan
+    const order = window._slideOrder||[];
+    const sortedImgs = [
+      ...order.filter(f=>imgs.includes(f)),
+      ...imgs.filter(f=>!order.includes(f))
+    ];
+
+    let html = '';
+
+    // Gambar — bisa drag untuk urutan
+    if(sortedImgs.length){
+      html += `<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">🖼️ Gambar Slideshow (seret untuk mengatur urutan)</div>`;
+      html += `<div id="slide-order-list">`;
+      html += sortedImgs.map((f,i)=>`
+        <div class="audio-item${d.active===f?' is-active':''}" 
+             draggable="true" data-fname="${escapeAttr(f)}"
+             style="cursor:grab;margin-bottom:6px"
+             ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)">
+          <span style="font-size:16px;margin-right:4px;cursor:grab;opacity:0.4">⠿</span>
+          <span style="font-size:11px;font-weight:800;color:var(--text3);margin-right:8px;min-width:20px">#${i+1}</span>
+          <div class="ai-name">🖼️ ${escapeHTML(f)}${d.active===f?' <span class="ai-badge">AKTIF</span>':''}</div>
+          <div class="ai-actions">
+            ${d.active!==f?`<button class="btn btn-success btn-sm" onclick="setVideo('${escapeAttr(f)}')">Aktifkan</button>`:''}
+            ${d.active===f?`<button class="btn btn-ghost btn-sm" onclick="setVideo(null)">Nonaktifkan</button>`:''}
+            <button class="btn btn-danger btn-sm" onclick="delVideo('${escapeAttr(f)}')">Hapus</button>
+          </div>
+        </div>`).join('');
+      html += `</div>`;
+      html += `<button class="btn btn-primary btn-sm" style="margin-bottom:16px" onclick="saveSlideOrder()">💾 Simpan Urutan</button>`;
+    }
+
+    // Video
+    if(vids.length){
+      html += `<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:8px 0;padding:0 2px">🎬 Video</div>`;
+      html += vids.map(f=>`
+        <div class="audio-item${d.active===f?' is-active':''}">
+          <div class="ai-name">🎬 ${escapeHTML(f)}${d.active===f?' <span class="ai-badge">AKTIF</span>':''}</div>
+          <div class="ai-actions">
+            ${d.active!==f?`<button class="btn btn-success btn-sm" onclick="setVideo('${escapeAttr(f)}')">Aktifkan</button>`:''}
+            ${d.active===f?`<button class="btn btn-ghost btn-sm" onclick="setVideo(null)">Nonaktifkan</button>`:''}
+            <button class="btn btn-danger btn-sm" onclick="delVideo('${escapeAttr(f)}')">Hapus</button>
+          </div>
+        </div>`).join('');
+    }
+
+    el.innerHTML = html;
+  }catch{document.getElementById('video-list').innerHTML='<p style="color:var(--red);font-size:13px">Gagal memuat daftar media.</p>';}
+}
+
+// Drag-drop handlers
+function onDragStart(e){
+  _dragSrc = e.currentTarget;
+  e.currentTarget.style.opacity='0.4';
+  e.dataTransfer.effectAllowed='move';
+}
+function onDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  e.currentTarget.style.borderColor='var(--blue2)';
+  return false;
+}
+function onDragEnd(e){
+  document.querySelectorAll('#slide-order-list .audio-item').forEach(el=>{
+    el.style.opacity='1';
+    el.style.borderColor='';
+  });
+}
+function onDrop(e){
+  e.stopPropagation();
+  const target = e.currentTarget;
+  target.style.borderColor='';
+  if(_dragSrc === target) return false;
+  const list = document.getElementById('slide-order-list');
+  const items = [...list.querySelectorAll('.audio-item[draggable]')];
+  const srcIdx = items.indexOf(_dragSrc);
+  const tgtIdx = items.indexOf(target);
+  if(srcIdx < tgtIdx) list.insertBefore(_dragSrc, target.nextSibling);
+  else list.insertBefore(_dragSrc, target);
+  // Update nomor urut
+  list.querySelectorAll('.audio-item').forEach((el,i)=>{
+    const numEl = el.querySelector('span:nth-child(2)');
+    if(numEl) numEl.textContent = '#'+(i+1);
+  });
+  return false;
+}
+
+async function saveSlideOrder(){
+  const list = document.getElementById('slide-order-list');
+  if(!list) return;
+  const order = [...list.querySelectorAll('.audio-item[data-fname]')].map(el=>el.dataset.fname);
+  window._slideOrder = order;
+  const r=await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({slide_order:order})}).then(r=>r.json());
+  if(r.error) return showToast(r.error,'err');
+  showToast('✅ Urutan slideshow disimpan');
+}
+async function uploadVideo(input){
+  const file=input.files[0];if(!file)return;
+  const prog=document.getElementById('video-upload-progress');
+  const progBar=document.getElementById('video-progress-bar');
+  const progTxt=document.getElementById('video-progress-txt');
+  prog.style.display='block';
+
+  await new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    const fd=new FormData();fd.append('video',file);
+
+    xhr.upload.onprogress=e=>{
+      if(e.lengthComputable){
+        const pct=Math.round(e.loaded/e.total*100);
+        progBar.style.width=pct+'%';
+        progTxt.textContent=`⏳ Mengupload… ${pct}% (${(e.loaded/1024/1024).toFixed(1)}MB / ${(e.total/1024/1024).toFixed(1)}MB)`;
+      }
+    };
+    xhr.onload=()=>{
+      try{
+        const r=JSON.parse(xhr.responseText);
+        if(r.error)showToast(r.error,'err');
+        else{showToast('✅ Video berhasil diupload: '+r.filename);loadVideo();}
+      }catch{showToast('Upload gagal: response tidak valid','err');}
+      resolve();
+    };
+    xhr.onerror=()=>{showToast('Upload gagal — periksa koneksi ke server','err');resolve();};
+    xhr.ontimeout=()=>{showToast('Upload timeout — coba lagi','err');resolve();};
+    xhr.timeout=300000; // 5 menit
+    xhr.open('POST','/api/video/upload');
+    xhr.send(fd);
+  });
+
+  prog.style.display='none';
+  progBar.style.width='0%';
+  input.value='';
+}
+async function setVideo(fname){
+  await fetch('/api/video/set-active',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:fname})});
+  showToast(fname?`Video aktif: ${fname}`:'Video intro dinonaktifkan');loadVideo();
+}
+async function delVideo(fname){
+  if(!confirm(`Hapus video "${fname}"?`))return;
+  await fetch(`/api/video/delete/${encodeURIComponent(fname)}`,{method:'DELETE'});
+  showToast('Video berhasil dihapus');loadVideo();
+}
+
+// Logo
+async function loadLogoPreview(){
+  try {
+    const s = await fetch('/api/settings').then(r=>r.json());
+    const el = document.getElementById('logo-preview');
+    const path = s.custom_logo ? `/uploads/${s.custom_logo}` : '/logo-tutwuri.png';
+    el.src = path;
+    // Update all logo images in admin
+    document.querySelectorAll('.hd-logo img, .sb-logo img').forEach(img => {
+      img.src = path;
+    });
+  } catch(e) {}
+}
+async function uploadLogo(input){
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('logo-upload-progress').style.display='block';
+  const fd = new FormData(); fd.append('logo', file);
+  try {
+    const r = await fetch('/api/logo/upload', {method:'POST', body:fd}).then(r=>r.json());
+    if(r.error) showToast(r.error, 'err');
+    else {
+      showToast('Logo berhasil diperbarui');
+      loadLogoPreview();
+    }
+  } catch(e) { showToast('Upload logo gagal', 'err'); }
+  finally { document.getElementById('logo-upload-progress').style.display='none'; input.value=''; }
+}
+async function resetLogo(){
+  if(!confirm('Kembalikan logo ke default?')) return;
+  await fetch('/api/logo/reset', {method:'POST'});
+  showToast('Logo dikembalikan ke default');
+  loadLogoPreview();
+}
+// Drag & drop video
+const dzv=document.getElementById('drop-zone-video');
+if(dzv){
+  dzv.addEventListener('dragover',e=>{e.preventDefault();dzv.classList.add('drag');});
+  dzv.addEventListener('dragleave',()=>dzv.classList.remove('drag'));
+  dzv.addEventListener('drop',e=>{
+    e.preventDefault();dzv.classList.remove('drag');
+    const file=e.dataTransfer.files[0];
+    if(file){const inp=document.getElementById('video-file');const dt=new DataTransfer();dt.items.add(file);inp.files=dt.files;uploadVideo(inp);}
+  });
+}
+
+// Drag & drop logo
+const dzl=document.getElementById('drop-zone-logo');
+if(dzl){
+  dzl.addEventListener('dragover',e=>{e.preventDefault();dzl.classList.add('drag');});
+  dzl.addEventListener('dragleave',()=>dzl.classList.remove('drag'));
+  dzl.addEventListener('drop',e=>{
+    e.preventDefault();dzl.classList.remove('drag');
+    const file=e.dataTransfer.files[0];
+    if(file){const inp=document.getElementById('logo-file');const dt=new DataTransfer();dt.items.add(file);inp.files=dt.files;uploadLogo(inp);}
+  });
+}
+
+// Backup
+async function loadBackupList(){
+  try{
+    const d=await fetch('/api/backup/list').then(r=>r.json());
+    const el=document.getElementById('backup-list');
+    if(!d.files?.length){el.innerHTML='<p style="color:var(--text3);font-size:13px">Belum ada file backup.</p>';return;}
+    el.innerHTML=d.files.map(f=>`<div class="backup-row"><span>💾</span><div class="br-name">${f.name}</div><div class="br-size">${Math.round(f.size/1024)} KB</div></div>`).join('');
+  }catch{}
+}
+async function doManualBackup(){
+  const r=await fetch('/api/backup/now',{method:'POST'}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Backup berhasil dibuat');loadBackupList();
+}
+
+// Log
+let _logLines=[];
+const LOG_COL={LOGIN:'var(--green)',LOGIN_FAILED:'var(--red)',LOGOUT:'var(--text3)',RESET_QUEUE:'var(--red)',ADD_SERVICE:'var(--blue2)',EDIT_SERVICE:'var(--blue2)',ADD_USER:'var(--purple)',DELETE_USER:'var(--red)',CHANGE_PASSWORD:'var(--yellow)'};
+async function loadLog(){
+  try{
+    _logLines=await fetch('/api/activity-log').then(r=>r.json());
+    renderLog(_logLines);
+  }catch{document.getElementById('log-list').innerHTML='<p style="color:var(--text3)">Gagal memuat log</p>';}
+}
+function renderLog(lines){
+  const el=document.getElementById('log-list');
+  if(!lines.length){el.innerHTML='<p style="color:var(--text3);font-size:13px">Belum ada aktivitas tercatat</p>';return;}
+  el.innerHTML=lines.map(line=>{
+    const m=line.match(/\[(.+?)\] (.+?) \| (.+?)(?:\s*\|\s*(.+))?$/);
+    if(!m)return`<div class="log-row"><span class="lr-detail">${line}</span></div>`;
+    const [,ts,user,action,detail]=m;
+    const col=LOG_COL[action]||'var(--text2)';
+    const time=new Date(ts).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    return`<div class="log-row">
+      <span class="lr-time">${time}</span>
+      <span class="lr-user">${user}</span>
+      <span class="lr-action" style="color:${col};background:${col}18">${action}</span>
+      ${detail?`<span class="lr-detail">${detail}</span>`:''}
+    </div>`;
+  }).join('');
+}
+function filterLog(){
+  const q   = document.getElementById('log-search').value.toLowerCase();
+  const act = document.getElementById('log-action-filter').value;
+  const dt  = document.getElementById('log-date-filter').value; // "YYYY-MM-DD"
+  let filtered = _logLines;
+  if(q)   filtered = filtered.filter(l=>l.toLowerCase().includes(q));
+  if(act) filtered = filtered.filter(l=>l.includes('| '+act));
+  if(dt)  filtered = filtered.filter(l=>l.startsWith('['+dt));
+  renderLog(filtered);
+}
+
+function exportLogCSV(){
+  // Ambil baris yang sedang difilter
+  const q   = document.getElementById('log-search').value.toLowerCase();
+  const act = document.getElementById('log-action-filter').value;
+  const dt  = document.getElementById('log-date-filter').value;
+  let filtered = _logLines;
+  if(q)   filtered = filtered.filter(l=>l.toLowerCase().includes(q));
+  if(act) filtered = filtered.filter(l=>l.includes('| '+act));
+  if(dt)  filtered = filtered.filter(l=>l.startsWith('['+dt));
+  if(!filtered.length){ showToast('Tidak ada data untuk diekspor','err'); return; }
+  // Bangun CSV
+  const rows = ['Waktu,Pengguna,Aksi,Detail'];
+  filtered.forEach(line=>{
+    const m=line.match(/\[(.+?)\] (.+?) \| (.+?)(?:\s*\|\s*(.+))?$/);
+    if(!m){ rows.push('"'+line.replace(/"/g,'""')+'","","",""'); return; }
+    const [,ts,user,action,detail]=m;
+    rows.push([ts,user,action,detail||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  });
+  const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const now=new Date().toISOString().slice(0,10);
+  a.href=url; a.download='log-aktivitas-'+now+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Log berhasil diekspor ('+filtered.length+' baris)');
+}
+
+// ── Mode Istirahat ────────────────────────────────────────────────────────────
+let _breakActive = false;
+
+function updateBreakUI(active){
+  _breakActive = active;
+  const card  = document.getElementById('break-card');
+  const btn   = document.getElementById('break-btn');   // tombol di dashboard
+  const hdBtn = document.getElementById('hd-break-btn'); // tombol di header
+
+  if(active){
+    if(card)  card.classList.add('active');
+    if(btn){  btn.className = 'btn btn-break-on';  btn.textContent = '✅ Akhiri Istirahat'; }
+    if(hdBtn){ hdBtn.className = 'hd-btn btn-break-on'; hdBtn.textContent = '✅ Aktif'; }
+    const title = document.getElementById('break-card-title');
+    const sub   = document.getElementById('break-card-sub');
+    if(title) title.textContent = 'Mode Istirahat Aktif';
+    if(sub)   sub.textContent   = 'Layar display menampilkan halaman istirahat. Klik untuk mengakhiri.';
+  } else {
+    if(card)  card.classList.remove('active');
+    if(btn){  btn.className = 'btn btn-break-off';  btn.textContent = '☕ Aktifkan Istirahat'; }
+    if(hdBtn){ hdBtn.className = 'hd-btn btn-break-off'; hdBtn.textContent = '☕ Istirahat'; }
+    const title = document.getElementById('break-card-title');
+    const sub   = document.getElementById('break-card-sub');
+    if(title) title.textContent = 'Pelayanan Aktif';
+    if(sub)   sub.textContent   = 'Klik tombol untuk mengaktifkan mode istirahat pada layar display.';
+  }
+}
+
+async function toggleBreak(){
+  const newState = !_breakActive;
+  const msg = document.getElementById('break-msg-input')?.value || '';
+  try{
+    const r = await fetch('/api/break', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ active: newState, message: msg })
+    }).then(r=>r.json());
+    if(r.error) return showToast(r.error, 'err');
+    updateBreakUI(newState);
+    showToast(newState ? '☕ Mode istirahat diaktifkan' : '✅ Pelayanan dilanjutkan');
+  } catch(e){
+    showToast('Gagal mengubah mode istirahat', 'err');
+  }
+}
+
+async function loadBreakStatus(){
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    updateBreakUI(!!s.break_mode);
+    if(s.break_message) {
+      const inp = document.getElementById('break-msg-input');
+      if(inp && !inp.value) inp.value = s.break_message;
+    }
+  }catch{}
+}
+
+// ── Jadwal Istirahat ──────────────────────────────────────────────────────────
+let _schedules = [];
+
+function toggleSchedulePanel(){
+  const panel = document.getElementById('schedule-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) loadSchedule();
+}
+
+async function loadSchedule(){
+  try{
+    _schedules = await fetch('/api/break/schedule').then(r=>r.json());
+    renderSchedule();
+  }catch{ showToast('Gagal memuat jadwal', 'err'); }
+}
+
+function renderSchedule(){
+  const container = document.getElementById('schedule-rows');
+  const empty     = document.getElementById('schedule-empty');
+  if(!_schedules.length){ container.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  container.innerHTML = _schedules.map((s,i) => `
+    <div class="schedule-row ${s.enabled?'enabled':''}" id="srow-${i}">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600">
+        <input type="checkbox" ${s.enabled?'checked':''} onchange="toggleScheduleEnabled(${i},this.checked)" style="width:16px;height:16px;cursor:pointer">
+        Aktif
+      </label>
+      <div class="schedule-time">
+        <span>Mulai</span>
+        <input type="time" value="${s.start||''}" onchange="updateScheduleField(${i},'start',this.value)">
+        <span>–</span>
+        <span>Selesai</span>
+        <input type="time" value="${s.end||''}" onchange="updateScheduleField(${i},'end',this.value)">
+      </div>
+      <input placeholder="Pesan (opsional)" value="${s.message||''}" oninput="updateScheduleField(${i},'message',this.value)"
+        style="flex:1;min-width:160px;background:var(--white);border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;outline:none">
+      <button class="btn btn-danger btn-sm" onclick="removeScheduleRow(${i})">🗑</button>
+    </div>
+  `).join('');
+}
+
+function addScheduleRow(){
+  _schedules.push({ start:'12:00', end:'13:00', message:'Pelayanan dilanjutkan setelah istirahat.', enabled:true });
+  renderSchedule();
+  document.getElementById('schedule-empty').style.display = 'none';
+}
+
+function removeScheduleRow(i){
+  _schedules.splice(i,1);
+  renderSchedule();
+}
+
+function toggleScheduleEnabled(i, val){
+  _schedules[i].enabled = val;
+  const row = document.getElementById(`srow-${i}`);
+  if(row) row.className = `schedule-row ${val?'enabled':''}`;
+}
+
+function updateScheduleField(i, field, val){
+  _schedules[i][field] = val;
+}
+
+async function saveSchedule(){
+  try{
+    const r = await fetch('/api/break/schedule',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(_schedules)
+    }).then(r=>r.json());
+    if(r.error) return showToast(r.error,'err');
+    _schedules = r;
+    renderSchedule();
+    showToast('✅ Jadwal istirahat disimpan');
+  }catch{ showToast('Gagal menyimpan jadwal','err'); }
+}
+
+// Settings
+async function loadSettings(){
+  try{
+    const s=await fetch('/api/settings').then(r=>r.json());
+    document.getElementById('set-name').value=s.institution_name||'';
+    document.getElementById('set-sub').value=s.institution_subtitle||'';
+    document.getElementById('set-run').value=s.running_text||'';
+    if(document.getElementById('slide-duration')) document.getElementById('slide-duration').value=s.slide_duration||5;
+    if(document.getElementById('auto-print')) document.getElementById('auto-print').value=s.auto_print?'1':'0';
+    window._slideOrder = s.slide_order||[];
+    // Load voice settings
+    const vol   = Math.round((s.voice_volume??0.9)*100);
+    const rate  = Math.round((s.voice_rate??0.78)*100);
+    const pitch = Math.round((s.voice_pitch??1.02)*100);
+    const volEl=document.getElementById('set-volume'), rateEl=document.getElementById('set-rate'), pitchEl=document.getElementById('set-pitch');
+    if(volEl){   volEl.value=vol;   document.getElementById('set-volume-val').textContent=vol+'%'; }
+    if(rateEl){  rateEl.value=rate; document.getElementById('set-rate-val').textContent=(rate/100).toFixed(2)+'x'; }
+    if(pitchEl){ pitchEl.value=pitch; document.getElementById('set-pitch-val').textContent=(pitch/100).toFixed(2); }
+    const mrEl = document.getElementById('set-max-recall');
+    if(mrEl) mrEl.value = s.max_recall ?? 3;
+    // Sinkronisasi semua elemen nama instansi di halaman admin
+    applySettingsToUI(s);
+  }catch{}
+}
+
+// Fungsi terpusat untuk update semua elemen UI yang menampilkan nama instansi
+function applySettingsToUI(s){
+  const name = s.institution_name || '';
+  const sub  = s.institution_subtitle || '';
+  const year = s.school_year || '';
+  // Sidebar sub (tampilkan subtitle jika ada, fallback ke name)
+  const sbSub = document.getElementById('admin-sb-sub');
+  if(sbSub) sbSub.textContent = sub || name;
+  // Sidebar info box (nama instansi lengkap)
+  const sbInst = document.getElementById('admin-sb-inst');
+  if(sbInst) sbInst.textContent = name;
+  // Dashboard welcome title
+  const dashTitle = document.getElementById('admin-dash-title');
+  if(dashTitle) dashTitle.textContent = name;
+  // Dashboard welcome subtitle paragraph
+  const dashSub = document.getElementById('admin-dash-sub');
+  if(dashSub && name) dashSub.textContent =
+    'Platform pengelolaan antrian terpadu berbasis web untuk mendukung proses '
+    + (sub ? sub+' '+name : name) + ' yang efisien, tertib, dan transparan.';
+  // Footer credits
+  const footerInst = document.getElementById('admin-footer-inst');
+  if(footerInst) footerInst.textContent = name;
+  const footerYear = document.getElementById('admin-footer-year');
+  if(footerYear && year) footerYear.textContent = year;
+  // Sidebar school year badge
+  const schoolYear = document.getElementById('admin-school-year');
+  if(schoolYear && year) schoolYear.textContent = '🏫 ' + year;
+  // Page title (browser tab)
+  document.title = 'Admin Panel – ' + (name || 'Sistem Antrian');
+}
+async function saveSettings(){
+  const vol   = (parseInt(document.getElementById('set-volume')?.value)||90)/100;
+  const rate  = (parseInt(document.getElementById('set-rate')?.value)||78)/100;
+  const pitch = (parseInt(document.getElementById('set-pitch')?.value)||102)/100;
+  const r=await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    institution_name:document.getElementById('set-name').value,
+    institution_subtitle:document.getElementById('set-sub').value,
+    running_text:document.getElementById('set-run').value,
+    voice_volume: vol,
+    voice_rate:   rate,
+    voice_pitch:  pitch,
+    max_recall:   parseInt(document.getElementById('set-max-recall')?.value)||3,
+  })}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Pengaturan berhasil disimpan');
+}
+
+async function testVoice(){
+  const vol   = (parseInt(document.getElementById('set-volume')?.value)||90)/100;
+  const rate  = (parseInt(document.getElementById('set-rate')?.value)||78)/100;
+  const pitch = (parseInt(document.getElementById('set-pitch')?.value)||102)/100;
+
+  // 1) Putar suara langsung di browser admin via Web Speech API
+  if('speechSynthesis' in window){
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance('Nomor antrian A satu, silakan menuju Loket satu');
+    utt.lang   = 'id-ID';
+    utt.volume = Math.min(vol, 1);
+    utt.rate   = rate;
+    utt.pitch  = pitch;
+
+    // Pilih suara bahasa Indonesia jika tersedia
+    const voices = window.speechSynthesis.getVoices();
+    const idVoice = voices.find(v => v.lang === 'id-ID') || voices.find(v => v.lang.startsWith('id'));
+    if(idVoice) utt.voice = idVoice;
+
+    utt.onerror = () => showToast('Browser tidak mendukung Text-to-Speech','err');
+    window.speechSynthesis.speak(utt);
+    showToast('🔔 Memutar tes suara…');
+  } else {
+    showToast('Browser tidak mendukung Text-to-Speech','err');
+  }
+
+  // 2) Tetap kirim ke display jika sedang terbuka (tidak wajib)
+  try{
+    await fetch('/api/voice-test',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({volume:vol,rate,pitch})});
+  }catch{}
+}
+async function saveSlideSettings(){
+  const dur = parseInt(document.getElementById('slide-duration').value)||5;
+  const ap  = document.getElementById('auto-print').value==='1';
+  const r=await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    slide_duration: dur,
+    auto_print: ap,
+    slide_order: window._slideOrder||[],
+  })}).then(r=>r.json());
+  if(r.error)return showToast(r.error,'err');
+  showToast('Pengaturan slideshow disimpan');
+}
+
+// Reset
+async function doReset(){
+  if(!confirm('RESET semua data antrian hari ini?\n\nBackup otomatis akan dibuat sebelum reset.'))return;
+  // Cari tombol reset dan disable selama proses berlangsung
+  const btn=document.querySelector('[onclick="doReset()"]');
+  const origText=btn?.textContent||'';
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Mereset…'; }
+  try{
+    const r=await fetch('/api/reset',{method:'POST'}).then(r=>r.json());
+    if(r.error){ showToast(r.error,'err'); return; }
+    showToast('Antrian berhasil direset');
+  } catch{
+    showToast('Gagal terhubung ke server saat reset','err');
+  } finally{
+    if(btn){ btn.disabled=false; btn.textContent=origText; }
+  }
+}
+
+async function doLogout(){await fetch('/api/auth/logout',{method:'POST'});location.href='/login';}
+
+// SSE — auto-reconnect dengan exponential backoff (sama seperti loket & display)
+let _adminEs=null, _adminEsRetry=1000;
+function connectAdminSSE(){
+  if(_adminEs){ try{_adminEs.close();}catch{} }
+  _adminEs=new EventSource('/events');
+  _adminEs.onopen=()=>{
+    _adminEsRetry=1000;
+    // Pulihkan indikator koneksi jika ada
+    const dot=document.getElementById('admin-conn-dot');
+    if(dot){ dot.style.background='#4ade80'; dot.title='Terhubung'; }
+  };
+  _adminEs.onmessage=e=>{
+    _adminEsRetry=1000;
+    const d=JSON.parse(e.data);
+    if(['call','counter_update','queue_updated','reset'].includes(d.type)){ loadStats(); loadHourly(); }
+    if(d.type==='settings_updated' && d.settings){ applySettingsToUI(d.settings); }
+  };
+  _adminEs.onerror=()=>{
+    _adminEs.close();
+    const dot=document.getElementById('admin-conn-dot');
+    if(dot){ dot.style.background='#f87171'; dot.title='Koneksi terputus, mencoba ulang…'; }
+    setTimeout(connectAdminSSE, _adminEsRetry);
+    _adminEsRetry=Math.min(_adminEsRetry*2, 30000);
+  };
+}
+connectAdminSSE();
+
+// ── License Agreement ─────────────────────────────────────────────────────────
+function toggleAgree(){
+  const chk = document.getElementById('license-chk');
+  const btn = document.getElementById('license-btn');
+  chk.checked = !chk.checked;
+  if(chk.checked){
+    btn.disabled = false;
+    btn.classList.add('ready');
+  } else {
+    btn.disabled = true;
+    btn.classList.remove('ready');
+  }
+}
+
+function acceptLicense(){
+  const chk = document.getElementById('license-chk');
+  if(!chk.checked) return;
+  // Simpan ke localStorage agar tidak muncul lagi di sesi ini
+  localStorage.setItem('license_accepted_v4','1');
+  const overlay = document.getElementById('license-overlay');
+  overlay.classList.add('fade-out');
+  setTimeout(()=>{ overlay.classList.add('hidden'); }, 500);
+}
+
+// Cek apakah sudah pernah setuju sebelumnya
+(function checkLicense(){
+  if(localStorage.getItem('license_accepted_v4') === '1'){
+    const overlay = document.getElementById('license-overlay');
+    if(overlay) overlay.classList.add('hidden');
+  }
+})();
+
+// ── Export Excel ──────────────────────────────────────────────────────────────
+async function exportExcel(){
+  try{
+    showToast('Menyiapkan file Excel…');
+    const rows = await fetch('/api/queue/today').then(r=>r.json());
+    if(!rows.length){ showToast('Belum ada data antrian hari ini','err'); return; }
+
+    const wsData = [
+      ['No','Nomor Antrian','Layanan','Status','Loket','Waktu Ambil','Waktu Panggil','Waktu Selesai']
+    ];
+    rows.forEach((q,i)=>{
+      wsData.push([
+        i+1,
+        q.queue_number,
+        q.service_name,
+        {waiting:'Menunggu',serving:'Dilayani',served:'Selesai',skipped:'Dilewati'}[q.status]||q.status,
+        q.counter_id||'-',
+        q.created_at ? new Date(q.created_at).toLocaleString('id-ID') : '-',
+        q.called_at  ? new Date(q.called_at).toLocaleString('id-ID')  : '-',
+        q.served_at  ? new Date(q.served_at).toLocaleString('id-ID')  : '-',
+      ]);
+    });
+
+    const wb  = XLSX.utils.book_new();
+    const ws  = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Column widths
+    ws['!cols'] = [
+      {wch:5},{wch:16},{wch:22},{wch:12},{wch:10},
+      {wch:22},{wch:22},{wch:22}
+    ];
+
+    // Style header row (bold)
+    const headerRange = XLSX.utils.decode_range(ws['!ref']);
+    for(let C=headerRange.s.c; C<=headerRange.e.c; C++){
+      const cell = XLSX.utils.encode_cell({r:0,c:C});
+      if(!ws[cell]) continue;
+      ws[cell].s = { font:{bold:true}, fill:{fgColor:{rgb:'003580'}}, alignment:{horizontal:'center'} };
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Antrian');
+
+    // Summary sheet
+    const stats = await fetch('/api/stats').then(r=>r.json());
+    const sumData = [
+      ['Ringkasan Antrian Hari Ini', ''],
+      ['Tanggal', new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})],
+      [''],
+      ['Total Antrian', stats.total],
+      ['Menunggu',      stats.waiting],
+      ['Dilayani',      stats.serving],
+      ['Selesai',       stats.served],
+      ['Dilewati',      stats.skipped],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(sumData);
+    wsSummary['!cols'] = [{wch:20},{wch:30}];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
+
+    const date = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Antrian-${date}.xlsx`);
+    showToast('✅ File Excel berhasil diunduh');
+  }catch(e){ showToast('Export Excel gagal: '+e.message,'err'); }
+}
+
+// ── Export PDF ─────────────────────────────────────────────────────────────────
+async function exportPDF(){
+  try{
+    showToast('Menyiapkan file PDF…');
+    const rows  = await fetch('/api/queue/today').then(r=>r.json());
+    const stats = await fetch('/api/stats').then(r=>r.json());
+    const sets  = await fetch('/api/settings').then(r=>r.json());
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const date = new Date();
+    const dateStr = date.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+    // ── Header ──
+    doc.setFillColor(0,53,128);
+    doc.rect(0,0,210,32,'F');
+    doc.setFontSize(16); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text(sets.institution_name||'SISTEM ANTRIAN DIGITAL', 105, 12, {align:'center'});
+    doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('Laporan Data Antrian — '+dateStr, 105, 19, {align:'center'});
+
+    // ── Summary box ──
+    const sumItems = [
+      ['Total',stats.total],['Selesai',stats.served],
+      ['Menunggu',stats.waiting],['Dilewati',stats.skipped]
+    ];
+    const boxW=42, startX=14, startY=38;
+    sumItems.forEach(([label,val],i)=>{
+      const x=startX+i*boxW;
+      doc.setFillColor(i===1?26:i===2?180:i===3?192:0, i===1?122:i===2?83:i===3?57:53, i===1?60:i===2?9:i===3?43:128);
+      doc.roundedRect(x,startY,boxW-4,20,2,2,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont('helvetica','bold');
+      doc.text(String(val), x+(boxW-4)/2, startY+12, {align:'center'});
+      doc.setFontSize(7); doc.setFont('helvetica','normal');
+      doc.text(label.toUpperCase(), x+(boxW-4)/2, startY+17.5, {align:'center'});
+    });
+
+    // ── Table ──
+    const tableRows = rows.map((q,i)=>[
+      i+1,
+      q.queue_number,
+      q.service_name,
+      {waiting:'Menunggu',serving:'Dilayani',served:'Selesai',skipped:'Dilewati'}[q.status]||q.status,
+      q.created_at ? new Date(q.created_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-',
+      q.called_at  ? new Date(q.called_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})  : '-',
+      q.served_at  ? new Date(q.served_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})  : '-',
+    ]);
+
+    doc.autoTable({
+      startY: startY+26,
+      head:[['No','Nomor','Layanan','Status','Ambil','Panggil','Selesai']],
+      body: tableRows.length ? tableRows : [['','Belum ada data','','','','','']],
+      theme:'grid',
+      headStyles:{ fillColor:[0,53,128], textColor:255, fontSize:8, fontStyle:'bold', halign:'center' },
+      bodyStyles:{ fontSize:8, cellPadding:2 },
+      columnStyles:{
+        0:{halign:'center',cellWidth:8},
+        1:{halign:'center',cellWidth:18},
+        2:{cellWidth:36},
+        3:{halign:'center',cellWidth:22},
+        4:{halign:'center',cellWidth:22},
+        5:{halign:'center',cellWidth:22},
+        6:{halign:'center',cellWidth:22},
+      },
+      alternateRowStyles:{ fillColor:[240,244,248] },
+      margin:{ left:14, right:14 },
+    });
+
+    // ── Footer ──
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i=1;i<=pageCount;i++){
+      doc.setPage(i);
+      doc.setFontSize(7); doc.setTextColor(150);
+      doc.text(`Dicetak: ${date.toLocaleString('id-ID')} · Halaman ${i}/${pageCount}`, 105, 290, {align:'center'});
+    }
+
+    doc.save(`Laporan-Antrian-${date.toISOString().slice(0,10)}.pdf`);
+    showToast('✅ File PDF berhasil diunduh');
+  }catch(e){ showToast('Export PDF gagal: '+e.message,'err'); console.error(e); }
+}
+
+// Pre-load voices agar tersedia saat testVoice dipanggil
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+loadStats();loadHourly();loadLogoPreview();loadBreakStatus();loadSettings();
+setInterval(loadStats,15000);
+setInterval(loadHourly,60000);
+</script>
+</body>
+</html>

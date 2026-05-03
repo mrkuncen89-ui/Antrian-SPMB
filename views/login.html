@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masuk – Sistem Antrian SPMB</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:     #003580;
+  --blue2:    #0050b3;
+  --blue-lt:  #e6f0ff;
+  --blue-md:  #cce0ff;
+  --red:      #c0392b;
+  --white:    #ffffff;
+  --bg:       #f0f4f8;
+  --card:     #ffffff;
+  --text:     #1a2332;
+  --text2:    #4a5568;
+  --text3:    #718096;
+  --border:   #d1dce8;
+  --green:    #1a7a3c;
+  --green-lt: #e6f4ec;
+  --shadow:   0 2px 12px rgba(0,53,128,.08);
+  --shadow2:  0 4px 24px rgba(0,53,128,.12);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header strip ── */
+.gov-strip {
+  background: var(--blue);
+  padding: 0 clamp(16px,4vw,40px);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.gov-strip img { height: 28px; }
+.gov-strip-text {
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  font-weight: 500;
+  letter-spacing: .2px;
+}
+.gov-strip-text strong { color: #fff; font-weight: 700; }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px,4vw,48px) 16px;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 0;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow2);
+  border: 1px solid var(--border);
+}
+
+/* ── Left info panel ── */
+.info-panel {
+  background: linear-gradient(160deg, var(--blue) 0%, var(--blue2) 100%);
+  padding: clamp(32px,5vw,52px) clamp(28px,4vw,44px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.info-logo {
+  width: 64px; height: 64px;
+  background: rgba(255,255,255,.12);
+  border: 2px solid rgba(255,255,255,.25);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin-bottom: 28px;
+}
+.info-title {
+  font-size: clamp(20px,3vw,28px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 12px;
+}
+.info-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,.7);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.info-features { display: flex; flex-direction: column; gap: 12px; }
+.info-feat {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,.8);
+}
+.feat-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.5);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+/* ── Right form panel ── */
+.form-panel {
+  padding: clamp(32px,5vw,52px) clamp(28px,4vw,44px);
+  border-left: 1px solid var(--border);
+}
+.form-header { margin-bottom: 28px; }
+.form-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.form-header p { font-size: 13px; color: var(--text3); }
+
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-group input:focus {
+  border-color: var(--blue2);
+  box-shadow: 0 0 0 3px rgba(0,80,179,.1);
+}
+
+.err-box {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  border-left: 4px solid var(--red);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--red);
+  margin-bottom: 18px;
+  display: none;
+}
+.err-box.show { display: block; }
+
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  letter-spacing: .2px;
+}
+.btn-login:hover { background: var(--blue2); }
+.btn-login:active { transform: scale(.99); }
+.btn-login:disabled { opacity: .6; cursor: not-allowed; }
+
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 20px 0 16px;
+  font-size: 12px; color: var(--text3);
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.quick-links { display: flex; gap: 8px; }
+.quick-link {
+  flex: 1; padding: 9px 8px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 13px; font-weight: 600;
+  color: var(--blue2);
+  border: 1.5px solid var(--blue-md);
+  border-radius: 8px;
+  background: var(--blue-lt);
+  transition: all .2s;
+}
+.quick-link:hover { background: var(--blue-md); }
+
+/* ── Footer ── */
+.footer {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 12px clamp(16px,4vw,40px);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .login-wrap { grid-template-columns: 1fr; }
+  .info-panel { padding: 28px 24px; }
+  .info-features { display: none; }
+  .form-panel { border-left: none; border-top: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<div class="gov-strip">
+  <img src="/logo-tutwuri.png" alt="Tut Wuri Handayani" style="height:32px;width:32px;object-fit:contain;">
+  <div class="gov-strip-text"><strong id="login-strip-abbr">SPMB</strong> · <span id="login-strip-name">SDN Kramat 03 PG</span></div>
+</div>
+
+<div class="main">
+  <div class="login-wrap">
+    <div class="info-panel">
+      <div class="info-logo"><img src="/logo-tutwuri.png" alt="Tut Wuri Handayani" style="width:100%;height:100%;object-fit:contain;"></div>
+      <div class="info-title" id="login-info-title">Sistem Antrian<br>SPMB Digital</div>
+      <div class="info-sub" id="login-info-sub">Platform pengelolaan antrian terpadu untuk mendukung proses SPMB SDN Kramat 03 PG yang efisien, tertib, dan transparan.</div>
+      <div class="info-features">
+        <div class="info-feat"><div class="feat-dot"></div>Pendaftaran, Verifikasi Berkas &amp; Wawancara</div>
+        <div class="info-feat"><div class="feat-dot"></div>Estimasi waktu tunggu otomatis</div>
+        <div class="info-feat"><div class="feat-dot"></div>Cetak tiket antrian formal</div>
+        <div class="info-feat"><div class="feat-dot"></div>Notifikasi suara otomatis</div>
+      </div>
+    </div>
+
+    <div class="form-panel">
+      <div class="form-header">
+        <h2>Masuk ke Sistem</h2>
+        <p>Gunakan akun yang telah diberikan oleh administrator</p>
+      </div>
+
+      <div class="err-box" id="err"></div>
+
+      <div class="form-group">
+        <label for="username">Nama Pengguna</label>
+        <input type="text" id="username" placeholder="Masukkan nama pengguna" autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Kata Sandi</label>
+        <input type="password" id="password" placeholder="Masukkan kata sandi" autocomplete="current-password">
+      </div>
+
+      <button class="btn-login" id="btn-login" onclick="doLogin()">Masuk</button>
+
+      <div class="divider">Atau akses halaman publik</div>
+
+      <div class="quick-links">
+        <a href="/kiosk" class="quick-link">🎫 Kiosk Antrian</a>
+        <a href="/display" class="quick-link">📺 Layar Display</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Sistem Antrian <span id="login-footer-abbr">SPMB</span> &copy; 2026 · <span id="login-footer-name">SDN Kramat 03 PG</span>
+  <span style="margin:0 8px;color:var(--border)">|</span>
+  <span id="login-footer-year">🏫 Tahun Ajaran 2026/2027</span>
+</div>
+
+<script>
+const next = new URLSearchParams(location.search).get('next') || '/admin';
+document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('username').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('password').focus(); });
+
+// Sinkronisasi nama instansi dari API settings
+(async function loadSettings(){
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    const name = s.institution_name || '';
+    const sub  = s.institution_subtitle || '';
+    const year = s.school_year || '';
+    // Header strip
+    const stripAbbr = document.getElementById('login-strip-abbr');
+    if(stripAbbr) stripAbbr.textContent = sub || name;
+    const stripName = document.getElementById('login-strip-name');
+    if(stripName) stripName.textContent = name;
+    // Info panel kiri
+    const infoTitle = document.getElementById('login-info-title');
+    if(infoTitle) infoTitle.innerHTML = 'Sistem Antrian<br>' + (sub || name);
+    const infoSub = document.getElementById('login-info-sub');
+    if(infoSub) infoSub.textContent =
+      'Platform pengelolaan antrian terpadu untuk mendukung proses '
+      + (sub ? sub + ' ' : '') + name + ' yang efisien, tertib, dan transparan.';
+    // Footer
+    const footerAbbr = document.getElementById('login-footer-abbr');
+    if(footerAbbr) footerAbbr.textContent = sub || name;
+    const footerName = document.getElementById('login-footer-name');
+    if(footerName) footerName.textContent = name;
+    const footerYear = document.getElementById('login-footer-year');
+    if(footerYear && year) footerYear.textContent = '🏫 ' + year;
+    // Page title
+    document.title = 'Masuk – ' + (name || 'Sistem Antrian');
+  }catch{}
+})();
+
+async function doLogin() {
+  const btn = document.getElementById('btn-login');
+  const err = document.getElementById('err');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if (!username || !password) { return showErr('Nama pengguna dan kata sandi wajib diisi.'); }
+  btn.disabled = true; btn.textContent = 'Memproses…';
+  err.classList.remove('show');
+  try {
+    const r = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, password}) });
+    const d = await r.json();
+    if (r.status === 429) { showErr(d.error); return; }
+    if (!r.ok) { showErr(d.error || 'Login gagal. Periksa kembali nama pengguna dan kata sandi.'); return; }
+    location.href = d.role === 'admin' ? (next.startsWith('/loket') ? next : '/admin') : '/loket';
+  } catch { showErr('Gagal terhubung ke server. Coba lagi.'); }
+  finally { btn.disabled = false; btn.textContent = 'Masuk'; }
+}
+function showErr(msg) {
+  const e = document.getElementById('err');
+  e.textContent = '⚠ ' + msg;
+  e.classList.add('show');
+}
+</script>
+</body>
+</html>

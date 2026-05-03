@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loket Petugas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#003580;--blue2:#0050b3;--blue3:#1a6dd4;
+  --blue-lt:#e6f0ff;--blue-md:#b3d1ff;
+  --white:#ffffff;--bg:#f0f4f8;--bg2:#e8eef5;
+  --text:#1a2332;--text2:#241c47;--text3:#718096;
+  --border:#d1dce8;--border2:#c2d4e8;
+  --green:#1a7a3c;--green-lt:#e6f4ec;--green-md:#a7d7b8;
+  --red:#c0392b;--red-lt:#fdecea;--red-md:#f4a9a2;
+  --yellow:#b45309;--yellow-lt:#fef3c7;
+  --shadow:0 2px 8px rgba(0,53,128,.08);
+  --shadow2:0 4px 20px rgba(0,53,128,.12);
+}
+.dark{
+  --white:#1e2a3a;--bg:#141e2e;--bg2:#1a2540;
+  --text:#e8eef5;--text2:#94a3b8;--text3:#64748b;
+  --border:#2a3f5a;--border2:#1e3358;
+  --green-lt:rgba(26,122,60,.15);
+  --red-lt:rgba(192,57,43,.15);
+  --yellow-lt:rgba(180,83,9,.15);
+  --shadow:0 2px 8px rgba(0,0,0,.2);
+  --shadow2:0 4px 20px rgba(0,0,0,.3);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);display:flex;flex-direction:column;transition:background .3s,color .3s;}
+
+/* ── Header ── */
+.header{
+  background:var(--blue);height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,24px);flex-shrink:0;
+}
+.hd-left{display:flex;align-items:center;gap:10px;}
+.hd-logo{font-size:18px;}
+.hd-title{font-size:clamp(13px,1.6vw,16px);font-weight:700;color:#fff;}
+.hd-right{display:flex;align-items:center;gap:8px;}
+.hd-badge{
+  font-size:12px;color:rgba(255,255,255,.7);
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  border-radius:6px;padding:4px 10px;font-weight:500;
+}
+.hd-badge strong{color:#fff;}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 2px rgba(74,222,128,.2);}
+.icon-btn{
+  width:30px;height:30px;border-radius:6px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.7);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.icon-btn:hover{background:rgba(255,255,255,.18);}
+
+/* ── Layout ── */
+.layout{flex:1;display:grid;grid-template-columns:260px 1fr;overflow:hidden;}
+
+/* ── Sidebar ── */
+.sidebar{
+  background:var(--white);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.sb-section{padding:14px;}
+.sb-section-title{
+  font-size:10px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:10px;
+  padding-bottom:6px;border-bottom:2px solid var(--blue);
+  display:inline-block;
+}
+.counter-item{
+  padding:11px 12px;border-radius:8px;
+  background:var(--bg);border:1.5px solid var(--border);
+  cursor:pointer;transition:all .18s;margin-bottom:6px;
+}
+.counter-item:hover{border-color:var(--blue2);}
+.counter-item.selected{background:var(--blue-lt);border-color:var(--blue2);}
+.ci-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.ci-name{font-size:13px;font-weight:700;color:var(--text);}
+.ci-num{
+  font-size:20px;font-weight:800;color:var(--blue);
+  font-variant-numeric:tabular-nums;
+}
+.ci-num.empty{font-size:13px;font-weight:400;color:var(--text3);}
+.ci-op{font-size:11px;color:var(--text3);}
+
+.sb-divider{height:1px;background:var(--border);margin:4px 0;}
+.sb-menu{padding:8px 14px 14px;display:flex;flex-direction:column;gap:4px;}
+.sb-btn{
+  width:100%;padding:8px 12px;border-radius:7px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;border:none;text-align:left;transition:all .18s;
+  display:flex;align-items:center;gap:8px;
+}
+.sb-dark{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.sb-dark:hover{border-color:var(--blue2);color:var(--blue2);}
+.sb-notif{background:var(--blue-lt);color:var(--blue2);border:1px solid var(--blue-md);}
+.sb-logout{background:var(--red-lt);color:var(--red);border:1px solid var(--red-md);}
+.sb-logout:hover{background:#fbd5d1;}
+/* ── Mode Istirahat ── */
+.sb-break-off{background:#fff3cd;color:#856404;border:1.5px solid #ffc107;}
+.sb-break-off:hover{background:#ffe69c;}
+.sb-break-on{background:var(--green-lt);color:var(--green);border:1.5px solid var(--green-md);animation:break-pulse .8s ease-in-out infinite alternate;}
+.sb-break-on:hover{background:#b8dfc4;}
+@keyframes break-pulse{from{box-shadow:0 0 0 0 rgba(26,122,60,.35);}to{box-shadow:0 0 0 6px rgba(26,122,60,0);}}
+.break-panel{margin:6px 0;padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);border-left:3px solid var(--yellow);}
+.break-panel.active{border-left-color:var(--green);}
+.break-panel-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.break-panel-sub{font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:8px;}
+.break-msg-inp{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:6px 8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:var(--text);background:var(--bg);outline:none;margin-bottom:6px;}
+.break-msg-inp:focus{border-color:var(--blue2);}
+/* Header break indicator */
+.hd-break-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:none;animation:break-pulse .8s ease-in-out infinite alternate;}
+
+/* ── Main content ── */
+.main{overflow-y:auto;padding:clamp(14px,2vw,24px);}
+
+/* ── Serving card ── */
+.serving-card{
+  background:var(--blue);
+  border-radius:12px;
+  padding:clamp(16px,2.5vw,24px);
+  margin-bottom:16px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+}
+.sc-left{}
+.sc-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px;}
+.sc-number{
+  font-size:clamp(48px,8vw,72px);font-weight:800;color:#fff;
+  line-height:1;letter-spacing:-2px;
+  font-variant-numeric:tabular-nums;
+}
+.sc-number.empty{font-size:clamp(18px,2.5vw,24px);font-weight:400;color:rgba(255,255,255,.4);}
+.sc-right{text-align:right;}
+.sc-svc{font-size:clamp(13px,1.8vw,18px);font-weight:600;color:rgba(255,255,255,.8);}
+.sc-ctr{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;}
+
+/* ── Actions ── */
+.actions-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-bottom:16px;
+}
+.action-btn{
+  padding:clamp(12px,2vw,16px) 12px;
+  border-radius:10px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:clamp(12px,1.4vw,14px);font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .18s;-webkit-tap-highlight-color:transparent;
+}
+.action-btn:active{transform:scale(.97);}
+.action-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.btn-call{background:var(--blue);color:#fff;grid-column:span 2;}
+.btn-call:hover:not(:disabled){background:var(--blue2);}
+.btn-recall{background:var(--bg2);color:var(--text);border:1.5px solid var(--border);}
+.btn-recall:hover:not(:disabled){border-color:var(--blue2);color:var(--blue2);}
+.btn-skip{background:var(--yellow-lt);color:var(--yellow);border:1.5px solid #fde68a;}
+.btn-skip:hover:not(:disabled){background:#fef9e7;}
+.recall-badge{display:none;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-left:8px;}
+.recall-badge.warn{background:#fff3cd;color:#856404;border:1px solid #ffc107;}
+.recall-badge.danger{background:#f8d7da;color:#842029;border:1px solid #f5c2c7;animation:recall-pulse .6s ease-in-out infinite alternate;}
+@keyframes recall-pulse{from{opacity:1;}to{opacity:.5;}}
+.btn-done{background:var(--green-lt);color:var(--green);border:1.5px solid var(--green-md);grid-column:span 2;}
+.btn-done:hover:not(:disabled){background:#d1f0dd;}
+
+/* ── Queue section ── */
+.q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-title{font-size:clamp(14px,1.8vw,18px);font-weight:700;color:var(--text);}
+.q-count{
+  font-size:12px;font-weight:700;
+  background:var(--blue);color:#fff;
+  padding:2px 10px;border-radius:100px;
+}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.filter-btn{
+  padding:5px 12px;border-radius:100px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--white);color:var(--text2);
+  cursor:pointer;transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.filter-btn:hover:not(.active){border-color:var(--blue2);color:var(--blue2);}
+
+.queue-table{
+  background:var(--white);border-radius:10px;
+  border:1px solid var(--border);
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.qt-row{
+  display:grid;grid-template-columns:36px 80px 1fr 60px;
+  align-items:center;gap:10px;
+  padding:11px 14px;
+  border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.qt-row:last-child{border-bottom:none;}
+.qt-row:hover{background:var(--bg);}
+.qt-rank{font-size:12px;font-weight:600;color:var(--text3);text-align:center;}
+.qt-num{font-size:18px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;}
+.qt-info{}
+.qt-svc{font-size:13px;font-weight:600;color:var(--text);}
+.qt-time{font-size:11px;color:var(--text3);margin-top:1px;}
+.qt-wait{
+  font-size:11px;font-weight:600;
+  padding:3px 8px;border-radius:100px;
+  background:var(--bg2);color:var(--text3);
+  text-align:center;
+}
+.qt-wait.warn{background:var(--yellow-lt);color:var(--yellow);}
+.qt-wait.danger{background:var(--red-lt);color:var(--red);animation:pulse-warn 1.5s ease infinite;}
+@keyframes pulse-warn{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Antrian baris lama: highlight keseluruhan baris */
+.qt-row.row-warn { background: var(--yellow-lt) !important; }
+.qt-row.row-danger { background: var(--red-lt) !important; border-left: 3px solid var(--red); }
+
+.empty-state{padding:40px;text-align:center;color:var(--text3);font-size:13px;}
+
+/* ── Antrian Dilewati ── */
+.skipped-section{margin-top:20px;}
+.skipped-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.skipped-title{font-size:clamp(14px,1.8vw,18px);font-weight:700;color:var(--yellow);}
+.skipped-count{
+  font-size:12px;font-weight:700;
+  background:var(--yellow);color:#fff;
+  padding:2px 10px;border-radius:100px;
+}
+.skipped-table{
+  background:var(--white);border-radius:10px;
+  border:1.5px solid #fde68a;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.sk-row{
+  display:grid;grid-template-columns:80px 1fr auto;
+  align-items:center;gap:10px;
+  padding:10px 14px;
+  border-bottom:1px solid #fef3c7;
+  transition:background .15s;
+}
+.sk-row:last-child{border-bottom:none;}
+.sk-row:hover{background:var(--yellow-lt);}
+.sk-num{font-size:18px;font-weight:800;color:var(--yellow);font-variant-numeric:tabular-nums;}
+.sk-info{}.sk-svc{font-size:13px;font-weight:600;color:var(--text);}
+.sk-time{font-size:11px;color:var(--text3);margin-top:1px;}
+.btn-restore{
+  padding:6px 14px;border-radius:7px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;
+  background:var(--blue);color:#fff;transition:all .18s;white-space:nowrap;
+}
+.btn-restore:hover{background:var(--blue2);}
+.btn-restore:active{transform:scale(.96);}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;top:64px;right:16px;
+  background:var(--blue);color:#fff;
+  border-radius:8px;padding:11px 18px;
+  font-size:13px;font-weight:600;
+  z-index:200;
+  transform:translateX(120%);transition:transform .3s;
+  box-shadow:var(--shadow2);max-width:280px;
+}
+.toast.show{transform:translateX(0);}
+.toast.err{background:var(--red);}
+@media(max-width:760px){
+  .toast{top:auto;bottom:16px;right:8px;left:8px;max-width:none;transform:translateY(120%);}
+  .toast.show{transform:translateY(0);}
+}
+
+/* ── Mobile ── */
+.sb-overlay{display:none;}
+@media(max-width:760px){
+  /* Layout */
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:260px;z-index:50;transform:translateX(-100%);transition:transform .3s;box-shadow:4px 0 24px rgba(0,0,0,.15);}
+  .sidebar.open{transform:translateX(0);}
+  .sb-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:49;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .sb-overlay.show{opacity:1;pointer-events:all;}
+
+  /* Main padding */
+  .main{padding:12px;}
+
+  /* Serving card — stack vertical */
+  .serving-card{flex-direction:column;align-items:flex-start;gap:10px;padding:16px;}
+  .sc-right{text-align:left;width:100%;}
+  .sc-number{font-size:52px;letter-spacing:-1px;}
+
+  /* Actions — full width buttons tapi tetap 2 kolom */
+  .actions-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+  .btn-call,.btn-done{grid-column:span 2;}
+  .action-btn{padding:13px 10px;font-size:13px;}
+
+  /* Queue table */
+  .queue-table{font-size:12px;}
+  .queue-table th,.queue-table td{padding:8px 6px;white-space:nowrap;}
+
+  /* Skipped section */
+  .skipped-section{margin-top:12px;}
+  .skipped-table{font-size:12px;}
+  .skipped-table th,.skipped-table td{padding:8px 6px;white-space:nowrap;}
+
+  /* Conn dot */
+  .conn-dot{width:8px;height:8px;}
+
+  /* Header */
+  .hd-badge{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+}
+
+@media(max-width:480px){
+  .serving-card{padding:14px;}
+  .sc-number{font-size:42px;}
+  .sc-label{font-size:10px;}
+  .action-btn{padding:12px 8px;font-size:12px;}
+  .actions-grid{gap:6px;}
+  /* Table scroll */
+  .tbl-scroll-wrap{overflow-x:auto;}
+  .hd-badge{display:none;}
+  /* Lebih besar touch target untuk tombol utama */
+  .btn-call{padding:16px!important;font-size:14px!important;}
+  .btn-done{padding:16px!important;font-size:14px!important;}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="hd-left">
+    <div class="icon-btn" onclick="toggleSB()">☰</div>
+    <div class="hd-logo"><img src="/logo-tutwuri.png" alt="Tut Wuri Handayani" style="width:22px;height:22px;object-fit:contain;"></div>
+    <div class="hd-title" id="loket-hd-title">Loket Petugas</div>
+  </div>
+  <div class="hd-right">
+    <div class="hd-badge"><strong id="user-name">—</strong></div>
+    <div class="hd-break-dot" id="hd-break-dot" title="Mode Istirahat Aktif" style="display:none"></div>
+    <button class="sb-btn sb-break-off" id="hd-break-btn" onclick="toggleBreak()" title="Mode Istirahat" style="padding:5px 10px;font-size:12px;border-radius:6px;display:none">☕ Istirahat</button>
+    <div class="conn-dot" id="conn-dot"></div>
+  </div>
+</header>
+
+<div class="sb-overlay" id="sb-overlay" onclick="closeSB()"></div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <div class="sb-section">
+      <div class="sb-section-title">Pilih Loket</div>
+      <div id="counter-list"><div style="color:var(--text3);font-size:12px;padding:8px">Memuat loket…</div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-menu">
+      <button class="sb-btn sb-dark" id="dm-btn" onclick="toggleDark()">🌙 Dark Mode</button>
+      <button class="sb-btn sb-notif" id="notif-btn" onclick="toggleNotif()">🔔 Notifikasi: Aktif</button>
+      <div class="break-panel" id="loket-break-panel" style="display:none">
+        <div class="break-panel-title"><span id="loket-break-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--yellow);margin-right:5px;vertical-align:middle;"></span><span id="loket-break-title">Pelayanan Aktif</span></div>
+        <div class="break-panel-sub" id="loket-break-sub">Aktifkan mode istirahat agar layar display menampilkan pesan jeda.</div>
+        <input class="break-msg-inp" id="loket-break-msg" placeholder="Pesan istirahat (opsional)…" maxlength="120">
+        <button class="sb-btn sb-break-off" id="loket-break-btn" onclick="toggleBreak()">☕ Aktifkan Istirahat</button>
+      </div>
+      <button class="sb-btn sb-logout" onclick="doLogout()">↩ Keluar</button>
+      <div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);text-align:center">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Sistem Antrian</div>
+        <div id="loket-sb-inst" style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">SPMB SDN Kramat 03 PG</div>
+        <span id="loket-sb-year" style="display:inline-flex;align-items:center;gap:5px;background:#003580;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;">
+          🏫 Tahun Ajaran 2026/2027
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="serving-card">
+      <div class="sc-left">
+        <div class="sc-label">Sedang Dilayani</div>
+        <div class="sc-number empty" id="sc-num">Pilih loket</div>
+      </div>
+      <div class="sc-right">
+        <div class="sc-svc" id="sc-svc"></div>
+        <div class="sc-ctr" id="sc-ctr"></div>
+      </div>
+    </div>
+
+    <div class="actions-grid">
+      <button class="action-btn btn-call" id="btn-call" onclick="callNext()" disabled>
+        📢 Panggil Berikutnya
+      </button>
+      <button class="action-btn btn-recall" id="btn-recall" onclick="doRecall()" disabled>
+        🔁 Panggil Ulang <span id="recall-badge" class="recall-badge"></span>
+      </button>
+      <button class="action-btn btn-skip" id="btn-skip" onclick="doSkip()" disabled>
+        ⏭ Lewati
+      </button>
+      <button class="action-btn btn-done" id="btn-done" onclick="doDone()" disabled>
+        ✅ Selesai Dilayani
+      </button>
+    </div>
+
+    <div class="q-header">
+      <div class="q-title">Antrian Menunggu</div>
+      <div class="q-count" id="q-count">0</div>
+    </div>
+    <div class="filter-row" id="filter-row"></div>
+    <div class="tbl-scroll-wrap">
+      <div class="queue-table" id="queue-table">
+        <div class="empty-state">Pilih loket untuk melihat antrian</div>
+      </div>
+    </div>
+
+    <!-- Antrian Dilewati -->
+    <div class="skipped-section" id="skipped-section" style="display:none">
+      <div class="skipped-header">
+        <div class="skipped-title">⏭ Antrian Dilewati</div>
+        <div class="skipped-count" id="skipped-count">0</div>
+      </div>
+      <div class="tbl-scroll-wrap">
+        <div class="skipped-table" id="skipped-table"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let counters=[],selCounter=null,waiting=[],services=[],lastCount=0;
+let _notifEnabled=localStorage.getItem('notif_sound')!=='0';
+let _filter='all';
+
+// ── Security helpers ──────────────────────────────────────────────────────────
+function escapeHTML(str){
+  if(str===null||str===undefined)return'';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function escapeAttr(str){
+  if(str===null||str===undefined)return'';
+  return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
+}
+
+let _userRole = 'loket'; // default
+fetch('/api/auth/me').then(r=>r.json()).then(d=>{
+  document.getElementById('user-name').textContent = d.username||'Petugas';
+  _userRole = d.role || 'loket';
+  // Tampilkan fitur istirahat hanya jika admin
+  const breakPanel = document.getElementById('loket-break-panel');
+  const hdBreakBtn = document.getElementById('hd-break-btn');
+  const hdBreakDot = document.getElementById('hd-break-dot');
+  if(_userRole === 'admin'){
+    if(breakPanel) breakPanel.style.display = '';
+    if(hdBreakBtn) hdBreakBtn.style.display = '';
+    if(hdBreakDot) hdBreakDot.style.display = _breakActive ? 'block' : 'none';
+  } else {
+    // Sembunyikan semua kontrol istirahat untuk petugas loket biasa
+    if(breakPanel) breakPanel.style.display = 'none';
+    if(hdBreakBtn) hdBreakBtn.style.display = 'none';
+    if(hdBreakDot) hdBreakDot.style.display = 'none';
+  }
+}).catch(()=>{});
+
+// ── Settings: sinkronisasi nama instansi ──────────────────────────────────────
+async function loadSettings(){
+  try{
+    const s=await fetch('/api/settings').then(r=>r.json());
+    applyLoketSettings(s);
+  }catch{}
+}
+function applyLoketSettings(s){
+  const name = s.institution_name || '';
+  const sub  = s.institution_subtitle || '';
+  const year = s.school_year || '';
+  // Sidebar: tampilkan "SUBTITLE NAMA" seperti "SPMB SDN Kramat 03 PG"
+  const el = document.getElementById('loket-sb-inst');
+  if(el) el.textContent = sub && name ? sub + ' ' + name : name || sub;
+  // Badge tahun ajaran
+  const yr = document.getElementById('loket-sb-year');
+  if(yr && year) yr.textContent = '🏫 ' + year;
+  // Header title (atas)
+  const hdTitle = document.getElementById('loket-hd-title');
+  if(hdTitle) hdTitle.textContent = name || 'Loket Petugas';
+  // Browser tab title
+  document.title = (name ? name + ' – ' : '') + 'Loket Petugas';
+}
+
+// Dark mode
+if(localStorage.getItem('loket_dark')==='1')document.body.classList.add('dark');
+updateDarkBtn();
+function updateDarkBtn(){document.getElementById('dm-btn').textContent=document.body.classList.contains('dark')?'☀️ Light Mode':'🌙 Dark Mode';}
+function toggleDark(){const d=document.body.classList.toggle('dark');localStorage.setItem('loket_dark',d?'1':'0');updateDarkBtn();}
+
+// Notif beep
+function playBeep(){
+  if(!_notifEnabled)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.setValueAtTime(880,ctx.currentTime);
+    o.frequency.setValueAtTime(660,ctx.currentTime+.1);
+    g.gain.setValueAtTime(.3,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);
+    o.start();o.stop(ctx.currentTime+.45);
+  }catch{}
+}
+function toggleNotif(){
+  _notifEnabled=!_notifEnabled;
+  localStorage.setItem('notif_sound',_notifEnabled?'1':'0');
+  document.getElementById('notif-btn').textContent=_notifEnabled?'🔔 Notifikasi: Aktif':'🔕 Notifikasi: Mati';
+  if(_notifEnabled)playBeep();
+}
+document.getElementById('notif-btn').textContent=_notifEnabled?'🔔 Notifikasi: Aktif':'🔕 Notifikasi: Mati';
+
+// Sidebar
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sb-overlay').classList.toggle('show');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('show');}
+
+// Toast
+let _tt;
+function showToast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=(type==='ok'?'✓ ':'⚠ ')+msg;
+  el.className='toast show'+(type==='err'?' err':'');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// Counters
+async function loadCounters(){
+  try{
+    counters=await fetch('/api/counters').then(r=>r.json());
+    document.getElementById('counter-list').innerHTML=counters.map(c=>`
+      <div class="counter-item${selCounter?.id===c.id?' selected':''}" onclick="selectCounter(${c.id})">
+        <div class="ci-row">
+          <div class="ci-name">${escapeHTML(c.name)}</div>
+          <div class="ci-num${c.current_queue?'':' empty'}">${c.current_queue ? escapeHTML(formatQueueNumber(c.current_queue)) : '—'}</div>
+        </div>
+        <div class="ci-op">${escapeHTML(c.operator)||'Tidak ada petugas'}</div>
+      </div>`).join('');
+    if(selCounter){selCounter=counters.find(c=>c.id===selCounter.id);updateServing();}
+  }catch{}
+}
+
+let _queuePollInterval=null;
+function selectCounter(id){
+  selCounter=counters.find(c=>c.id===id);
+  loadCounters();updateServing();loadQueue();closeSB();
+  setButtons(true);
+  // BUG FIX: Mulai polling hanya setelah loket dipilih
+  if(_queuePollInterval) clearInterval(_queuePollInterval);
+  _queuePollInterval=setInterval(loadQueue,15000);
+}
+
+function formatQueueNumber(str){
+  if(!str || str==='—') return '—';
+  const match = str.match(/^([A-Za-z]*)(\d+)$/);
+  if(match){
+    const prefix = match[1];
+    const digit  = match[2].padStart(2,'0');
+    return prefix + digit;
+  }
+  return str;
+}
+
+function updateServing(){
+  if(!selCounter){
+    document.getElementById('sc-num').className='sc-number empty';
+    document.getElementById('sc-num').textContent='Pilih loket';
+    document.getElementById('sc-svc').textContent='';
+    document.getElementById('sc-ctr').textContent='';
+    setButtons(false);return;
+  }
+  const q=selCounter.current_queue;
+  const el=document.getElementById('sc-num');
+  if(q){
+    el.className='sc-number';
+    el.textContent=formatQueueNumber(q);
+    // BUG FIX: sc-svc (nama layanan) sebelumnya tidak pernah diisi saat ada antrian aktif
+    // REKOMENDASI: Gunakan current_service_name jika tersedia dari API, fallback ke string kosong
+    document.getElementById('sc-svc').textContent=selCounter.current_service_name||'';
+  } else {
+    el.className='sc-number empty';
+    el.textContent='Tidak ada';
+    // REKOMENDASI: Kosongkan nama layanan juga saat idle agar tidak sisa teks lama
+    document.getElementById('sc-svc').textContent='';
+  }
+  document.getElementById('sc-ctr').textContent=selCounter.name+(selCounter.operator?' · '+selCounter.operator:'');
+}
+
+function setButtons(on){
+  ['btn-call','btn-recall','btn-skip','btn-done'].forEach(id=>document.getElementById(id).disabled=!on);
+}
+
+// Services / filter
+async function loadServices(){
+  try{
+    services=await fetch('/api/services/active').then(r=>r.json());
+    renderFilter();
+  }catch{}
+}
+function renderFilter(){
+  document.getElementById('filter-row').innerHTML=
+    `<button class="filter-btn${_filter==='all'?' active':''}" onclick="setFilter('all')">Semua</button>`
+    +services.map(s=>`<button class="filter-btn${_filter===s.id?' active':''}" onclick="setFilter(${s.id})">${s.prefix} – ${s.name}</button>`).join('');
+}
+function setFilter(id){_filter=id==='all'?'all':parseInt(id);renderFilter();renderQueue();}
+
+// Queue
+async function loadQueue(){
+  if(!selCounter)return;
+  try{
+    const raw=await fetch('/api/queue/waiting').then(r=>r.json()).catch(()=>[]);
+    if(raw.length>lastCount)playBeep();
+    lastCount=raw.length;
+    waiting=raw;
+    renderQueue();
+  }catch{}
+  loadSkipped();
+}
+
+async function loadSkipped(){
+  try{
+    const skipped=await fetch('/api/queue/skipped').then(r=>r.json()).catch(()=>[]);
+    const sec=document.getElementById('skipped-section');
+    const tbl=document.getElementById('skipped-table');
+    const cnt=document.getElementById('skipped-count');
+    if(!skipped.length){sec.style.display='none';return;}
+    sec.style.display='';
+    cnt.textContent=skipped.length;
+    tbl.innerHTML=skipped.map(q=>`
+      <div class="sk-row">
+        <div class="sk-num">${escapeHTML(formatQueueNumber(q.queue_number))}</div>
+        <div class="sk-info">
+          <div class="sk-svc">${escapeHTML(q.service_name)}</div>
+          <div class="sk-time">Dilewati ${q.called_at?new Date(q.called_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):''}</div>
+        </div>
+        <button class="btn-restore" onclick="restoreSkipped('${escapeAttr(q.id)}','${escapeAttr(q.queue_number)}')">📢 Panggil Lagi</button>
+      </div>`).join('');
+  }catch{}
+}
+
+async function restoreSkipped(id, num){
+  try{
+    const r=await fetch(`/api/queue/${id}/restore`,{method:'POST'}).then(r=>r.json());
+    if(r.error)return showToast(r.error,'err');
+    showToast(`Nomor ${num} dikembalikan ke antrian`);
+    loadQueue();
+  }catch{showToast('Gagal mengembalikan antrian','err');}
+}
+function renderQueue(){
+  const list=_filter==='all'?[...waiting]:[...waiting].filter(q=>q.service_id==_filter);
+  // Sort: terlama menunggu di atas
+  list.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  document.getElementById('q-count').textContent=waiting.length;
+  const el=document.getElementById('queue-table');
+  if(!list.length){el.innerHTML='<div class="empty-state">Tidak ada antrian menunggu</div>';return;}
+  el.innerHTML=list.map((q,i)=>{
+    const mins=Math.floor((Date.now()-new Date(q.created_at))/60000);
+    const rowCls=mins>30?' row-danger':mins>15?' row-warn':'';
+    const badgeCls=mins>30?' danger':mins>15?' warn':'';
+    const timeLabel=mins<60?`${mins}m`:`${Math.floor(mins/60)}j ${mins%60}m`;
+    return`<div class="qt-row${rowCls}">
+      <div class="qt-rank">${i+1}</div>
+      <div class="qt-num">${escapeHTML(formatQueueNumber(q.queue_number))}</div>
+      <div class="qt-info">
+        <div class="qt-svc">${escapeHTML(q.service_name)}</div>
+        <div class="qt-time">${new Date(q.created_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div class="qt-wait${badgeCls}">${timeLabel}</div>
+    </div>`;
+  }).join('');
+}
+
+// Actions
+async function callNext(){
+  if(!selCounter)return showToast('Pilih loket terlebih dahulu','err');
+  // Konfirmasi jika ada antrian aktif yang akan diselesaikan otomatis
+  if(selCounter.current_queue){
+    if(!confirm('Selesaikan "'+( selCounter.current_queue.queue_number||'antrian ini')+'" dan panggil berikutnya?'))return;
+  }
+  try{
+    const body=_filter!=='all'?JSON.stringify({service_id:_filter}):'{}';
+    const r=await fetch(`/api/counters/${selCounter.id}/call-next`,{method:'POST',headers:{'Content-Type':'application/json'},body}).then(r=>r.json());
+    if(r.error)return showToast(r.error,'err');
+    const badge=document.getElementById('recall-badge');
+    if(badge){ badge.style.display='none'; badge.textContent=''; }
+    await loadCounters();loadQueue();showToast('Memanggil '+(r.queue?.queue_number||''));
+  }catch{showToast('Gagal','err');}
+}
+async function doRecall(){
+  if(!selCounter)return;
+  try{
+    const r=await fetch(`/api/counters/${selCounter.id}/recall`,{method:'POST'}).then(r=>r.json());
+    if(r.error)return showToast(r.error,'err');
+    if(r.auto_skipped){
+      await loadCounters();loadQueue();
+      showToast(`⏭ Tidak hadir — ${formatQueueNumber(r.queue_number)} dilewati otomatis`,'err');
+      document.getElementById('recall-badge').style.display='none';
+      return;
+    }
+    const max = r.max_recall||3;
+    const cnt = r.called_count||1;
+    const badge = document.getElementById('recall-badge');
+    if(badge){
+      badge.textContent = `Panggilan ke-${cnt} / ${max}`;
+      badge.style.display = 'inline-block';
+      badge.className = cnt >= max ? 'recall-badge danger' : 'recall-badge warn';
+    }
+    showToast(`🔔 Panggil ulang (${cnt}/${max})`);
+  }catch{showToast('Gagal','err');}
+}
+async function doSkip(){
+  if(!selCounter)return;
+  if(!confirm('Lewati nomor antrian ini?'))return;
+  try{
+    const r=await fetch(`/api/counters/${selCounter.id}/skip`,{method:'POST'}).then(r=>r.json());
+    if(r.error)return showToast(r.error,'err');
+    await loadCounters();loadQueue();showToast('Nomor dilewati');
+  }catch{showToast('Gagal','err');}
+}
+async function doDone(){
+  if(!selCounter)return;
+  const q=selCounter.current_queue;
+  if(!q)return showToast('Tidak ada antrian aktif','err');
+  // Konfirmasi sebelum menandai selesai — tindakan ini tidak bisa dibatalkan
+  if(!confirm('Tandai "'+(q.queue_number||'antrian ini')+'" sebagai selesai dilayani?'))return;
+  try{
+    const r=await fetch(`/api/counters/${selCounter.id}/done`,{method:'POST'}).then(r=>r.json());
+    if(r.error)return showToast(r.error,'err');
+    await loadCounters();loadQueue();showToast('Selesai dilayani');
+  }catch{showToast('Gagal','err');}
+}
+// ── Mode Istirahat ────────────────────────────────────────────────────────────
+let _breakActive = false;
+
+function updateBreakUI(active){
+  _breakActive = active;
+  // Sidebar panel
+  const panel  = document.getElementById('loket-break-panel');
+  const dot    = document.getElementById('loket-break-dot');
+  const title  = document.getElementById('loket-break-title');
+  const sub    = document.getElementById('loket-break-sub');
+  const btn    = document.getElementById('loket-break-btn');
+  // Header
+  const hdBtn  = document.getElementById('hd-break-btn');
+  const hdDot  = document.getElementById('hd-break-dot');
+
+  if(active){
+    if(panel)  panel.classList.add('active');
+    if(dot)    dot.style.background = 'var(--green)';
+    if(title)  title.textContent = 'Mode Istirahat Aktif';
+    if(sub)    sub.textContent   = 'Layar display sedang menampilkan halaman jeda. Klik untuk mengakhiri.';
+    if(btn){   btn.className = 'sb-btn sb-break-on'; btn.textContent = '✅ Akhiri Istirahat'; }
+    if(hdBtn){ hdBtn.className = 'sb-btn sb-break-on'; hdBtn.textContent = '✅ Aktif'; hdBtn.style.cssText='padding:5px 10px;font-size:12px;border-radius:6px;'; }
+    if(hdDot)  hdDot.style.display = 'block';  } else {
+    if(panel)  panel.classList.remove('active');
+    if(dot)    dot.style.background = 'var(--yellow)';
+    if(title)  title.textContent = 'Pelayanan Aktif';
+    if(sub)    sub.textContent   = 'Aktifkan mode istirahat agar layar display menampilkan pesan jeda.';
+    if(btn){   btn.className = 'sb-btn sb-break-off'; btn.textContent = '☕ Aktifkan Istirahat'; }
+    if(hdBtn){ hdBtn.className = 'sb-btn sb-break-off'; hdBtn.textContent = '☕ Istirahat'; hdBtn.style.cssText='padding:5px 10px;font-size:12px;border-radius:6px;'; }
+    if(hdDot)  hdDot.style.display = 'none';  }
+}
+
+async function toggleBreak(){
+  const newState = !_breakActive;
+  const msg = document.getElementById('loket-break-msg')?.value || '';
+  const btn = document.getElementById('loket-break-btn');
+  const hdBtn = document.getElementById('hd-break-btn');
+  if(btn) btn.disabled = true;
+  if(hdBtn) hdBtn.disabled = true;
+  try{
+    const r = await fetch('/api/break',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({active: newState, message: msg})
+    }).then(r=>r.json());
+    if(r.error){ showToast(r.error,'err'); return; }
+    updateBreakUI(newState);
+    showToast(newState ? '☕ Mode istirahat diaktifkan' : '✅ Pelayanan dilanjutkan');
+    closeSB();
+  } catch{
+    showToast('Gagal mengubah mode istirahat','err');
+  } finally{
+    if(btn) btn.disabled = false;
+    if(hdBtn) hdBtn.disabled = false;
+  }
+}
+
+async function loadBreakStatus(){
+  try{
+    const s = await fetch('/api/settings').then(r=>r.json());
+    updateBreakUI(!!s.break_mode);
+    if(s.break_message){
+      const inp = document.getElementById('loket-break-msg');
+      if(inp && !inp.value) inp.value = s.break_message;
+    }
+  }catch{}
+}
+
+async function doLogout(){await fetch('/api/auth/logout',{method:'POST'});location.href='/login';}
+
+// ── SSE dengan auto-reconnect ─────────────────────────────────────────────────
+let _es=null, _esRetry=1000;
+function connectSSE(){
+  if(_es){_es.close();}
+  _es=new EventSource('/events');
+  _es.onopen=()=>{
+    document.getElementById('conn-dot').style.background='#4ade80';
+    _esRetry=1000; // reset backoff saat berhasil konek
+  };
+  _es.onmessage=e=>{
+    const d=JSON.parse(e.data);
+    if(['call','counter_update','queue_updated'].includes(d.type)){loadCounters();loadQueue();}
+    if(d.type==='services_updated')loadServices();
+    if(d.type==='settings_updated' && d.settings) applyLoketSettings(d.settings);
+    if(d.type==='break_mode'){ updateBreakUI(!!d.active); }
+    if(d.type==='reset'){selCounter=null;loadCounters();loadQueue();lastCount=0;updateServing();setButtons(false);document.getElementById('skipped-section').style.display='none';}
+  };
+  _es.onerror=()=>{
+    document.getElementById('conn-dot').style.background='#f87171';
+    _es.close();
+    // Exponential backoff: 1s → 2s → 4s → max 30s
+    setTimeout(connectSSE, _esRetry);
+    _esRetry=Math.min(_esRetry*2, 30000);
+  };
+}
+connectSSE();
+
+// REKOMENDASI: Auto-pilih loket jika hanya ada 1 loket tersedia
+async function initCounters(){
+  await loadCounters();
+  if(!selCounter && counters.length===1){
+    selectCounter(counters[0].id);
+  }
+}
+initCounters(); loadServices(); loadSettings(); loadBreakStatus();
+
+// BUG FIX: setInterval loadQueue dipindah ke selectCounter agar tidak polling
+// sia-sia sebelum loket dipilih. Queue juga di-refresh via SSE, jadi 15s cukup.
+// REKOMENDASI: Gunakan visibilitychange agar poll langsung saat tab aktif kembali
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden && selCounter) loadQueue(); });
+</script>
+</body>
+</html>
