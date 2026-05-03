@@ -1,0 +1,23 @@
+{
+  "name": "antrian-spmb",
+  "version": "1.0.0",
+  "description": "Sistem Antrian Digital SPMB",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "pkg . --targets node18-win-x64 --output antrian_spmb.exe"
+  },
+  "pkg": {
+    "assets": [
+      "views/**/*",
+      "public/**/*",
+      "database/**/*",
+      ".env"
+    ],
+    "targets": ["node18-win-x64"]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
