@@ -2,7 +2,7 @@
 
 Sistem Antrian Digital SPMB adalah aplikasi manajemen antrian terpadu berbasis web yang dirancang untuk meningkatkan efisiensi, ketertiban, dan transparansi dalam proses pelayanan publik, khususnya pada proses Penerimaan Peserta Didik Baru (SPMB).
 
-Aplikasi ini dikembangkan oleh **Cahyana Wijaya (@mrkuncen)** sebagai solusi modern untuk instansi pendidikan seperti SDN KENARI 01.
+Aplikasi ini dikembangkan oleh **Cahyana Wijaya (@mrkuncen)** sebagai solusi modern untuk instansi pendidikan seperti.
 
 ## ✨ Fitur Utama
 
@@ -47,18 +47,18 @@ Aplikasi ini memiliki 5 modul utama yang saling terintegrasi:
 ## 🚀 Cara Instalasi
 ### 1. antrian_spmb (.exe)
 Jika Anda sudah memiliki file `antrian_spmb.exe`:
-1.  Letakkan file `antrian_spmb.exe` di folder C:\Program Files (x86).
+1.  Install `antrian_spmb.exe` di folder C:\Program Files (x86).
 2.  Pastikan folder tersebut memiliki izin tulis (untuk menyimpan database dan log).
-3.  **Klik dua kali** pada file `antrian_spmb.exe`.
+3.  setelah terinstal di desktop Antrian SPMB **Klik dua kali**
 4.  Jendela terminal akan muncul dan aplikasi akan berjalan secara otomatis pada port `3000`.
 5.  Akses aplikasi melalui browser di alamat: `http://localhost:3000`
 
-Setelah aplikasi berjalan, buka browser dan akses alamat berikut:
+Setelah aplikasi berjalan, buka browser wajib dengan Google Chrome dan akses alamat berikut:
 *   **🎫 Kiosk Antrian:** `http://localhost:3000/kiosk`
 *   **📺 Layar Display:** `http://localhost:3000/display`
 *   **🔐 Admin & Loket:** `http://localhost:3000/login`
 
-*(Gunakan akun admin default yang telah diberikan untuk masuk ke sistem).*
+*(Gunakan untuk masuk dengan username **admin** password **Admin123**).*
 
 ## 🔐 Keamanan & Lisensi
 
