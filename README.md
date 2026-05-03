@@ -44,29 +44,34 @@ Aplikasi ini memiliki 5 modul utama yang saling terintegrasi:
 *   **Dokumen:** SheetJS (XLSX), jsPDF
 *   **Utilitas:** QRCode.js, Web Speech API (TTS), Server-Sent Events (SSE) untuk sinkronisasi realtime.
 
-## 📦 Instalasi & Penggunaan
+## 🚀 Cara Instalasi & Penggunaan
 
-### Prasyarat
-*   Node.js (versi 18 atau lebih baru)
-*   NPM (Package Manager)
+Aplikasi ini dapat dijalankan dengan dua cara: menggunakan file executable (.exe) untuk pengguna umum, atau melalui Node.js untuk keperluan pengembangan.
 
-### Langkah Instalasi
-1.  Clone atau download repository ini.
-2.  Buka terminal di direktori proyek.
-3.  Install dependensi:
-    ```bash
-    npm install
-    ```
-4.  Jalankan aplikasi:
-    ```bash
-    npm start
-    ```
-5.  Akses melalui browser:
-    *   **Kiosk:** `http://localhost:3000/kiosk`
-    *   **Display:** `http://localhost:3000/display`
-    *   **Admin/Loket:** `http://localhost:3000/login`
+### 1. Menggunakan File Executable (.exe) — Rekomendasi
+Jika Anda sudah memiliki file `antrian_spmb.exe`:
+1.  Letakkan file `antrian_spmb.exe` di folder yang Anda inginkan.
+2.  Pastikan folder tersebut memiliki izin tulis (untuk menyimpan database dan log).
+3.  **Klik dua kali** pada file `antrian_spmb.exe`.
+4.  Jendela terminal akan muncul dan aplikasi akan berjalan secara otomatis pada port `3000`.
+5.  Akses aplikasi melalui browser di alamat: `http://localhost:3000`
 
-## 🛠️ Build Executable (Windows)
+### 2. Versi Developer (Node.js)
+1.  Pastikan sudah menginstal [Node.js](https://nodejs.org/) (versi 18+).
+2.  Buka terminal/CMD di folder proyek.
+3.  Install dependensi: `npm install`
+4.  Jalankan aplikasi: `npm start`
+
+## 🔗 Alamat Akses Cepat
+
+Setelah aplikasi berjalan, buka browser dan akses alamat berikut:
+*   **🎫 Kiosk Antrian:** `http://localhost:3000/kiosk`
+*   **📺 Layar Display:** `http://localhost:3000/display`
+*   **🔐 Admin & Loket:** `http://localhost:3000/login`
+
+*(Gunakan akun admin default yang telah diberikan untuk masuk ke sistem).*
+
+## 🛠️ Build Executable Sendiri (Opsional)
 
 Proyek ini telah dikonfigurasi menggunakan `pkg` untuk dikompilasi menjadi file executable tunggal:
 
