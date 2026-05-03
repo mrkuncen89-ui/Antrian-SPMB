@@ -2,7 +2,7 @@
 
 Sistem Antrian Digital SPMB adalah aplikasi manajemen antrian terpadu berbasis web yang dirancang untuk meningkatkan efisiensi, ketertiban, dan transparansi dalam proses pelayanan publik, khususnya pada proses Penerimaan Peserta Didik Baru (SPMB).
 
-Aplikasi ini dikembangkan oleh **Cahyana Wijaya (@mrkuncen)** sebagai solusi modern untuk instansi pendidikan seperti SDN Kramat 03 PG.
+Aplikasi ini dikembangkan oleh **Cahyana Wijaya (@mrkuncen)** sebagai solusi modern untuk instansi pendidikan seperti SDN KENARI 01.
 
 ## ✨ Fitur Utama
 
