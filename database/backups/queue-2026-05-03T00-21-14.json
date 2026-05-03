@@ -1,0 +1,242 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "PENDAFTARAN",
+      "prefix": "A",
+      "active": true,
+      "created_at": "2026-04-17T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "VERIFIKASI BERKAS",
+      "prefix": "B",
+      "active": true,
+      "created_at": "2026-04-17T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "WAWANCARA",
+      "prefix": "C",
+      "active": true,
+      "created_at": "2026-04-17T08:00:00.000Z"
+    }
+  ],
+  "queues": [
+    {
+      "id": "mop04syo2acf1f68",
+      "queue_number": "A1",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "served",
+      "counter_id": 1,
+      "created_at": "2026-05-02T23:57:44.737Z",
+      "called_at": "2026-05-02T23:58:04.628Z",
+      "served_at": "2026-05-02T23:59:02.773Z",
+      "called_count": 3
+    },
+    {
+      "id": "mop04uk1a0541665",
+      "queue_number": "A2",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "served",
+      "counter_id": 1,
+      "created_at": "2026-05-02T23:57:46.802Z",
+      "called_at": "2026-05-02T23:59:14.536Z",
+      "served_at": "2026-05-02T23:59:49.750Z",
+      "called_count": 1
+    },
+    {
+      "id": "mop04vz2ca794b40",
+      "queue_number": "A3",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "served",
+      "counter_id": 1,
+      "created_at": "2026-05-02T23:57:48.639Z",
+      "called_at": "2026-05-02T23:59:49.750Z",
+      "served_at": "2026-05-03T00:00:09.052Z",
+      "called_count": 1
+    },
+    {
+      "id": "mop04x563fef0ddc",
+      "queue_number": "A4",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "served",
+      "counter_id": 1,
+      "created_at": "2026-05-02T23:57:50.154Z",
+      "called_at": "2026-05-03T00:01:30.127Z",
+      "served_at": "2026-05-03T00:06:47.103Z",
+      "called_count": 2,
+      "no_show": true
+    },
+    {
+      "id": "mop0ba5tee0951a4",
+      "queue_number": "A5",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "served",
+      "counter_id": 1,
+      "created_at": "2026-05-03T00:02:46.961Z",
+      "called_at": "2026-05-03T00:06:47.103Z",
+      "served_at": "2026-05-03T00:07:29.577Z",
+      "called_count": 1
+    },
+    {
+      "id": "mop0bdtz0226c193",
+      "queue_number": "A6",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "served",
+      "counter_id": 1,
+      "created_at": "2026-05-03T00:02:51.720Z",
+      "called_at": "2026-05-03T00:07:40.041Z",
+      "served_at": "2026-05-03T00:19:53.644Z",
+      "called_count": 1
+    },
+    {
+      "id": "mop0bf7y9255d72f",
+      "queue_number": "A7",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "serving",
+      "counter_id": 1,
+      "created_at": "2026-05-03T00:02:53.518Z",
+      "called_at": "2026-05-03T00:19:53.644Z",
+      "served_at": null,
+      "called_count": 1
+    },
+    {
+      "id": "mop0bgnf54f2d3a3",
+      "queue_number": "A8",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "waiting",
+      "counter_id": null,
+      "created_at": "2026-05-03T00:02:55.372Z",
+      "called_at": null,
+      "served_at": null
+    },
+    {
+      "id": "mop0g01m4fe36c64",
+      "queue_number": "A9",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "waiting",
+      "counter_id": null,
+      "created_at": "2026-05-03T00:06:27.131Z",
+      "called_at": null,
+      "served_at": null
+    },
+    {
+      "id": "mop0g198b303c7ca",
+      "queue_number": "A10",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "waiting",
+      "counter_id": null,
+      "created_at": "2026-05-03T00:06:28.701Z",
+      "called_at": null,
+      "served_at": null
+    },
+    {
+      "id": "mop0g2653000e6b4",
+      "queue_number": "A11",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "waiting",
+      "counter_id": null,
+      "created_at": "2026-05-03T00:06:29.888Z",
+      "called_at": null,
+      "served_at": null
+    },
+    {
+      "id": "mop0g32fbca849e0",
+      "queue_number": "A12",
+      "prefix": "A",
+      "service_id": 1,
+      "service_name": "PENDAFTARAN",
+      "status": "waiting",
+      "counter_id": null,
+      "created_at": "2026-05-03T00:06:31.048Z",
+      "called_at": null,
+      "served_at": null
+    }
+  ],
+  "counters": [
+    {
+      "id": 1,
+      "name": "MEJA 1",
+      "current_queue": "A7",
+      "operator": "PETUGAS"
+    },
+    {
+      "id": 2,
+      "name": "MEJA 2",
+      "current_queue": null,
+      "operator": "PETUGAS"
+    },
+    {
+      "id": 3,
+      "name": "MEJA 3",
+      "current_queue": null,
+      "operator": "PETUGAS"
+    }
+  ],
+  "settings": {
+    "institution_name": "SDN KENARI 01",
+    "institution_subtitle": "SISTEM PENERIMAAN MURID BARU (SPMB)",
+    "running_text": "Selamat datang di SPMB SDN KENARI 01. Silakan ambil nomor antrian sesuai keperluan Anda. Harap menjaga ketertiban dan kesopanan selama proses berlangsung. Terima kasih.",
+    "last_reset": "Sun May 03 2026",
+    "avg_service_minutes": 10,
+    "custom_audio": null,
+    "custom_video": null,
+    "custom_logo": null,
+    "slide_duration": 5,
+    "slide_order": [],
+    "auto_print": false,
+    "break_mode": false,
+    "break_message": "",
+    "break_schedule": [],
+    "voice_volume": 0.9,
+    "voice_rate": 0.78,
+    "voice_pitch": 1.02,
+    "max_recall": 3,
+    "_break_auto": false
+  },
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "pbkdf2$100000$a131e580df0850fd4ae4a18e221ff914$5c9b58e5db7545011749f022dd8d955d40a860964f65d5f43800741ebe7730a6",
+      "role": "admin"
+    },
+    {
+      "id": 10,
+      "username": "cahya",
+      "password": "pbkdf2$100000$25260aa9686ebad93deb13e2b397bae2$e47eefea9b8ecfdef8a5519f1129d43579b7d334f6067a56b5863fc0d186734d",
+      "role": "officer"
+    },
+    {
+      "id": 11,
+      "username": "Cahyana",
+      "password": "pbkdf2$100000$1c4e7eeb7ff71cbe240e6b5e99fbfc4a$20f2f2827dec227ea1f18d95b599356f3ea03da938bf345e56f5c6774586d113",
+      "role": "admin"
+    }
+  ],
+  "next_service_id": 4,
+  "next_user_id": 12
+}

@@ -1,0 +1,83 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "PENDAFTARAN",
+      "prefix": "A",
+      "active": true,
+      "created_at": "2026-04-17T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "VERIFIKASI BERKAS",
+      "prefix": "B",
+      "active": true,
+      "created_at": "2026-04-17T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "WAWANCARA",
+      "prefix": "C",
+      "active": true,
+      "created_at": "2026-04-17T08:00:00.000Z"
+    }
+  ],
+  "queues": [],
+  "counters": [
+    {
+      "id": 1,
+      "name": "MEJA 1",
+      "current_queue": null,
+      "operator": "PETUGAS"
+    },
+    {
+      "id": 2,
+      "name": "MEJA 2",
+      "current_queue": null,
+      "operator": "PETUGAS"
+    },
+    {
+      "id": 3,
+      "name": "MEJA 3",
+      "current_queue": null,
+      "operator": "PETUGAS"
+    }
+  ],
+  "settings": {
+    "institution_name": "SDN KENARI 01",
+    "institution_subtitle": "SISTEM PENERIMAAN MURID BARU (SPMB)",
+    "running_text": "Selamat datang di SPMB SDN KENARI 01. Silakan ambil nomor antrian sesuai keperluan Anda. Harap menjaga ketertiban dan kesopanan selama proses berlangsung. Terima kasih.",
+    "last_reset": "Sun May 03 2026",
+    "avg_service_minutes": 10,
+    "custom_audio": null,
+    "custom_video": null,
+    "custom_logo": null,
+    "slide_duration": 5,
+    "slide_order": [],
+    "auto_print": false,
+    "break_mode": false,
+    "break_message": "",
+    "break_schedule": [],
+    "voice_volume": 0.9,
+    "voice_rate": 0.78,
+    "voice_pitch": 1.02,
+    "max_recall": 3,
+    "_break_auto": false
+  },
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "pbkdf2$100000$a131e580df0850fd4ae4a18e221ff914$5c9b58e5db7545011749f022dd8d955d40a860964f65d5f43800741ebe7730a6",
+      "role": "admin"
+    },
+    {
+      "id": 10,
+      "username": "cahya",
+      "password": "pbkdf2$100000$25260aa9686ebad93deb13e2b397bae2$e47eefea9b8ecfdef8a5519f1129d43579b7d334f6067a56b5863fc0d186734d",
+      "role": "officer"
+    }
+  ],
+  "next_service_id": 4,
+  "next_user_id": 11
+}

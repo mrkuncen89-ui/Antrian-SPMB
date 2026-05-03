@@ -1,0 +1,19 @@
+[2026-05-03T00:20:09.803Z] cahya | LOGOUT
+[2026-05-03T00:20:23.129Z] admin | LOGIN | Role: admin, IP: ::1
+[2026-05-03T00:20:54.050Z] admin | ADD_USER | Cahyana (admin)
+[2026-05-03T00:21:14.883Z] admin | RESET_QUEUE | Manual reset
+[2026-05-03T00:21:23.288Z] admin | BREAK_ON | -
+[2026-05-03T00:21:26.802Z] admin | BREAK_OFF | -
+[2026-05-03T00:21:34.119Z] admin | LOGOUT
+[2026-05-03T00:21:44.208Z] cahyana | LOGIN_FAILED | IP: ::1
+[2026-05-03T00:21:56.330Z] cahyana | LOGIN_FAILED | IP: ::1
+[2026-05-03T00:22:03.358Z] Cahyana | LOGIN | Role: admin, IP: ::1
+[2026-05-03T00:22:35.218Z] Cahyana | BREAK_ON | -
+[2026-05-03T00:22:42.321Z] Cahyana | BREAK_OFF | -
+[2026-05-03T00:22:56.245Z] Cahyana | BREAK_ON | Rek Madang heula ok
+[2026-05-03T00:23:07.516Z] Cahyana | BREAK_OFF | Rek Madang heula ok babadog
+[2026-05-03T00:23:08.946Z] Cahyana | BREAK_ON | Rek Madang heula ok babadog
+[2026-05-03T00:23:19.557Z] Cahyana | BREAK_OFF | Rek Madang heula ok babadog Beteng lapar
+[2026-05-03T00:23:20.240Z] Cahyana | BREAK_ON | Rek Madang heula ok babadog Beteng lapar
+[2026-05-03T00:23:28.075Z] Cahyana | BREAK_OFF | Rek Madang heula ok babadog Beteng lapar
+[2026-05-03T00:23:55.803Z] Cahyana | LOGOUT

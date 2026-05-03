@@ -1,0 +1,34 @@
+[2026-05-02T07:34:56.159Z] admin | LOGIN | Role: admin, IP: ::ffff:192.168.1.19
+[2026-05-02T07:37:10.158Z] admin | LOGOUT
+[2026-05-02T07:37:27.637Z] cahya | LOGIN | Role: officer, IP: ::ffff:192.168.1.19
+[2026-05-02T07:44:08.252Z] cahya | LOGOUT
+[2026-05-02T07:44:18.826Z] admin | LOGIN | Role: admin, IP: ::ffff:192.168.1.19
+[2026-05-02T07:44:22.168Z] admin | BREAK_ON | -
+[2026-05-02T07:45:15.360Z] admin | BREAK_OFF | -
+[2026-05-02T07:56:22.315Z] admin | RESET_QUEUE | Manual reset
+[2026-05-02T08:51:59.193Z] admin | BREAK_ON | -
+[2026-05-02T08:52:01.431Z] admin | BREAK_OFF | -
+[2026-05-02T08:52:44.911Z] admin | LOGOUT
+[2026-05-02T08:52:58.115Z] cahya | LOGIN | Role: officer, IP: ::ffff:192.168.1.19
+[2026-05-02T08:57:40.626Z] cahya | LOGOUT
+[2026-05-02T08:57:51.104Z] admin | LOGIN | Role: admin, IP: ::ffff:192.168.1.19
+[2026-05-02T08:57:54.458Z] admin | BREAK_ON | -
+[2026-05-02T08:58:04.742Z] admin | BREAK_OFF | -
+[2026-05-02T09:07:02.187Z] admin | LOGOUT
+[2026-05-02T09:07:22.435Z] cahya | LOGIN | Role: officer, IP: ::ffff:192.168.1.19
+[2026-05-02T09:08:38.281Z] cahya | LOGIN | Role: officer, IP: ::1
+[2026-05-02T09:12:34.848Z] cahya | LOGOUT
+[2026-05-02T09:13:02.947Z] cahya | LOGIN | Role: officer, IP: ::ffff:192.168.1.19
+[2026-05-02T09:14:00.931Z] cahya | LOGIN | Role: officer, IP: ::1
+[2026-05-02T09:19:00.161Z] cahya | LOGOUT
+[2026-05-02T09:19:13.201Z] admin | LOGIN | Role: admin, IP: ::ffff:192.168.1.19
+[2026-05-02T09:19:20.721Z] admin | BREAK_ON | -
+[2026-05-02T09:19:22.077Z] admin | BREAK_OFF | -
+[2026-05-02T09:19:25.447Z] admin | LOGOUT
+[2026-05-02T09:19:36.517Z] cahya | LOGIN | Role: officer, IP: ::ffff:192.168.1.19
+[2026-05-02T14:00:46.200Z] cahya | LOGIN | Role: officer, IP: ::1
+[2026-05-02T23:22:18.579Z] admin | LOGIN | Role: admin, IP: ::1
+[2026-05-02T23:54:55.508Z] admin | LOGIN | Role: admin, IP: ::1
+[2026-05-02T23:55:15.480Z] admin | RESET_QUEUE | Manual reset
+[2026-05-02T23:56:02.179Z] admin | LOGOUT
+[2026-05-02T23:56:13.105Z] cahya | LOGIN | Role: officer, IP: ::1
